@@ -1,0 +1,22 @@
+<RCC>
+    <qresource prefix="/rec">
+        <file>img/exit.png</file>
+        <file>img/open.png</file>
+        <file>img/save.png</file>
+        <file>img/save_as.png</file>
+        <file>img/accept.png</file>
+        <file>img/decline.png</file>
+        <file>img/lightmode.png</file>
+        <file>img/nightmode.png</file>
+        <file>img/exitDarkMode.png</file>
+        <file>img/minimize.png</file>
+        <file>img/minimizeDarkMode.png</file>
+        <file>img/iconSend.png</file>
+        <file>img/addClient.png</file>
+        <file>img/delClient.png</file>
+        <file>img/execProc.png</file>
+        <file>img/info.png</file>
+        <file>img/error.png</file>
+        <file>img/input.png</file>
+    </qresource>
+</RCC>
