@@ -6,6 +6,7 @@ inputDial::inputDial(QWidget *parent) :
     ui(new Ui::inputDial)
 {
     ui->setupUi(this);
+    QString str = ui->lineNewFile->text();
 }
 
 inputDial::~inputDial()
