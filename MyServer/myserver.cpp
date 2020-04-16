@@ -58,6 +58,7 @@
 #include <QStandardItemModel>
 #include <idialog.h>
 #include <errdialog.h>
+#include <inputdial.h>
 
 
 /*  MyServer - конструктор
@@ -252,15 +253,14 @@ void MyServer::readClient()
                 {
                     target.remove();
                 }
-                else if (dial.exec() == QDialog::Rejected)
+                else if (dial.result() == QDialog::Rejected)
                 {
-                    bool flag;
-                    QInputDialog inpPath;
-                    QString text = inpPath.getText(0, tr("Ввод информации"), "Новое имя файла", QLineEdit::Normal, "Файл", &flag);
-                    if (flag && !text.trimmed().isEmpty())
+                    inputDial inp;
+                    inp.setWindowTitle("Ввод данных");
+                    if (inp.exec() == QDialog::Accepted && !inp.sendName().trimmed().isEmpty())
                     {
                         QString exp = fileName.split(".").last();
-                        fileName = text + "." + exp;
+                        fileName = inp.sendName() + "." + exp;
                         target.setFileName(filePath + fileName);
                     }
                     else

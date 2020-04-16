@@ -6,10 +6,16 @@ inputDial::inputDial(QWidget *parent) :
     ui(new Ui::inputDial)
 {
     ui->setupUi(this);
-    QString str = ui->lineNewFile->text();
+    ui->btnOk->setShortcut(Qt::Key_Return);
+    connect(ui->btnOk, SIGNAL( clicked() ), SLOT( accept() ) );
 }
 
 inputDial::~inputDial()
 {
     delete ui;
+}
+
+QString inputDial::sendName()
+{
+    return ui->lineNewFile->text();
 }

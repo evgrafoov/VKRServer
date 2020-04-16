@@ -14,6 +14,7 @@ class inputDial : public QDialog
 public:
     explicit inputDial(QWidget *parent = nullptr);
     ~inputDial();
+    QString sendName();
 
 private:
     Ui::inputDial *ui;
