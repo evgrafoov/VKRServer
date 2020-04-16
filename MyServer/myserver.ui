@@ -26,6 +26,11 @@
    <layout class="QGridLayout" name="gridLayout">
     <item row="0" column="1" rowspan="2">
      <widget class="QGroupBox" name="groupListClient">
+      <property name="font">
+       <font>
+        <family>Roboto</family>
+       </font>
+      </property>
       <property name="title">
        <string>Клиенты</string>
       </property>
@@ -75,6 +80,12 @@
            <height>0</height>
           </size>
          </property>
+         <property name="font">
+          <font>
+           <family>Roboto</family>
+           <pointsize>11</pointsize>
+          </font>
+         </property>
          <property name="sortingEnabled">
           <bool>false</bool>
          </property>
@@ -91,7 +102,8 @@
         <widget class="QTextEdit" name="txtLogClient">
          <property name="font">
           <font>
-           <pointsize>8</pointsize>
+           <family>Roboto</family>
+           <pointsize>9</pointsize>
           </font>
          </property>
         </widget>
@@ -115,6 +127,7 @@
           <widget class="QPushButton" name="btnClearLog">
            <property name="font">
             <font>
+             <family>Roboto</family>
              <pointsize>10</pointsize>
             </font>
            </property>
@@ -151,6 +164,11 @@
           <height>0</height>
          </size>
         </property>
+        <property name="font">
+         <font>
+          <family>Roboto</family>
+         </font>
+        </property>
         <property name="title">
          <string>Действия</string>
         </property>
@@ -173,6 +191,12 @@
                <layout class="QHBoxLayout" name="hlayName">
                 <item>
                  <widget class="QLabel" name="lblName">
+                  <property name="font">
+                   <font>
+                    <family>Roboto</family>
+                    <pointsize>11</pointsize>
+                   </font>
+                  </property>
                   <property name="text">
                    <string>Имя</string>
                   </property>
@@ -185,6 +209,12 @@
                     <width>230</width>
                     <height>20</height>
                    </size>
+                  </property>
+                  <property name="font">
+                   <font>
+                    <family>Roboto</family>
+                    <pointsize>13</pointsize>
+                   </font>
                   </property>
                   <property name="styleSheet">
                    <string notr="true"/>
@@ -200,6 +230,12 @@
                <layout class="QHBoxLayout" name="vlayIp">
                 <item>
                  <widget class="QLabel" name="lblIp">
+                  <property name="font">
+                   <font>
+                    <family>Roboto</family>
+                    <pointsize>11</pointsize>
+                   </font>
+                  </property>
                   <property name="text">
                    <string>IP адрес</string>
                   </property>
@@ -212,6 +248,12 @@
                     <horstretch>210</horstretch>
                     <verstretch>30</verstretch>
                    </sizepolicy>
+                  </property>
+                  <property name="font">
+                   <font>
+                    <family>Roboto</family>
+                    <pointsize>13</pointsize>
+                   </font>
                   </property>
                  </widget>
                 </item>
@@ -352,6 +394,12 @@
                <verstretch>0</verstretch>
               </sizepolicy>
              </property>
+             <property name="font">
+              <font>
+               <family>Roboto</family>
+               <pointsize>11</pointsize>
+              </font>
+             </property>
             </widget>
            </item>
           </layout>
@@ -375,6 +423,7 @@
             <widget class="QPushButton" name="btnHideInfo">
              <property name="font">
               <font>
+               <family>Roboto</family>
                <pointsize>10</pointsize>
               </font>
              </property>
@@ -399,6 +448,12 @@
            <layout class="QVBoxLayout" name="verticalLayout_2">
             <item>
              <widget class="QTableView" name="tblArchChat">
+              <property name="font">
+               <font>
+                <family>Roboto</family>
+                <pointsize>10</pointsize>
+               </font>
+              </property>
               <property name="editTriggers">
                <set>QAbstractItemView::NoEditTriggers</set>
               </property>
@@ -436,6 +491,12 @@
                   <verstretch>0</verstretch>
                  </sizepolicy>
                 </property>
+                <property name="font">
+                 <font>
+                  <family>Roboto</family>
+                  <pointsize>11</pointsize>
+                 </font>
+                </property>
                 <property name="styleSheet">
                  <string notr="true"/>
                 </property>
@@ -445,9 +506,17 @@
                <widget class="QPushButton" name="btnChooseFile">
                 <property name="sizePolicy">
                  <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
-                  <horstretch>50</horstretch>
+                  <horstretch>40</horstretch>
                   <verstretch>0</verstretch>
                  </sizepolicy>
+                </property>
+                <property name="font">
+                 <font>
+                  <family>Roboto</family>
+                  <pointsize>11</pointsize>
+                  <weight>75</weight>
+                  <bold>true</bold>
+                 </font>
                 </property>
                 <property name="cursor">
                  <cursorShape>PointingHandCursor</cursorShape>
@@ -472,6 +541,11 @@
     </item>
     <item row="1" column="0">
      <widget class="QGroupBox" name="groupChat">
+      <property name="font">
+       <font>
+        <family>Roboto</family>
+       </font>
+      </property>
       <property name="title">
        <string>Чат</string>
       </property>
@@ -492,27 +566,10 @@
           </spacer>
          </item>
          <item>
-          <widget class="QPushButton" name="btnSaveChat">
-           <property name="font">
-            <font>
-             <pointsize>10</pointsize>
-            </font>
-           </property>
-           <property name="cursor">
-            <cursorShape>PointingHandCursor</cursorShape>
-           </property>
-           <property name="styleSheet">
-            <string notr="true"/>
-           </property>
-           <property name="text">
-            <string>Сохранить чат</string>
-           </property>
-          </widget>
-         </item>
-         <item>
           <widget class="QPushButton" name="btnClearChat">
            <property name="font">
             <font>
+             <family>Roboto</family>
              <pointsize>10</pointsize>
             </font>
            </property>
@@ -533,6 +590,7 @@
         <widget class="QTextEdit" name="txtChat">
          <property name="font">
           <font>
+           <family>Roboto</family>
            <pointsize>11</pointsize>
           </font>
          </property>
@@ -556,6 +614,12 @@
              <width>0</width>
              <height>30</height>
             </size>
+           </property>
+           <property name="font">
+            <font>
+             <family>Roboto</family>
+             <pointsize>11</pointsize>
+            </font>
            </property>
            <property name="styleSheet">
             <string notr="true"/>

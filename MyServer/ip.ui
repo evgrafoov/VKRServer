@@ -10,6 +10,12 @@
     <height>30</height>
    </rect>
   </property>
+  <property name="font">
+   <font>
+    <family>Roboto</family>
+    <pointsize>11</pointsize>
+   </font>
+  </property>
   <property name="windowTitle">
    <string>Frame</string>
   </property>
@@ -54,6 +60,7 @@
      </property>
      <property name="font">
       <font>
+       <family>Roboto</family>
        <pointsize>10</pointsize>
       </font>
      </property>
@@ -109,6 +116,7 @@
      </property>
      <property name="font">
       <font>
+       <family>Roboto</family>
        <pointsize>10</pointsize>
       </font>
      </property>
@@ -158,6 +166,7 @@
      </property>
      <property name="font">
       <font>
+       <family>Roboto</family>
        <pointsize>10</pointsize>
       </font>
      </property>
@@ -207,6 +216,7 @@
      </property>
      <property name="font">
       <font>
+       <family>Roboto</family>
        <pointsize>10</pointsize>
       </font>
      </property>

@@ -69,7 +69,6 @@
 MyServer::MyServer(int nPort, QWidget* pwgt): QMainWindow(pwgt), m_nNextBlockSize(0), ui(new Ui::MyServer)
 {
     ui->setupUi(this);
-    QApplication::setFont(QFont("Verdana", 11));
     m_ptcpServer = new QTcpServer(this);
     if (!m_ptcpServer->listen(QHostAddress::Any, nPort))
     {
@@ -104,6 +103,14 @@ MyServer::MyServer(int nPort, QWidget* pwgt): QMainWindow(pwgt), m_nNextBlockSiz
     ui->listClient->setIconSize(QSize(35, 35));
     ui->lineInText->setPlaceholderText("Напишите сообщение...");
     ui->txtClientInfo->setFixedHeight(100);
+
+    if (dateForChat != QDate::currentDate())
+    {
+        ui->txtChat->append("");
+        ui->txtChat->append("-----" + QDate::currentDate().toString() + "-----");
+        ui->txtChat->append("");
+        dateForChat = QDate::currentDate();
+    }
 
     model->setHorizontalHeaderLabels(horizontalHeader);
 
@@ -466,7 +473,7 @@ void MyServer::sendListClient()
 }
 
 void MyServer::addArchChat(QString sender, QString receiver, QString str)
-{
+{   
     QList<QString> strings = {sender, receiver, str};
     for(int row=0; row <=2; row++)
     {
@@ -934,32 +941,35 @@ void MyServer::on_actMinimize_triggered()
 
 void MyServer::on_btnClearChat_clicked()
 {
-    idialog dial("Вы действительно хотите очистить чат?");
-    dial.setWindowTitle("Очистка чата");
-    if (dial.exec() == QDialog::Accepted)
-    {
-        ui->txtChat->clear();
-    }
+        idialog dial("Вы действительно хотите очистить чат?");
+        dial.setWindowTitle("Очистка чата");
+        if (dial.exec() == QDialog::Accepted)
+        {
+            ui->txtChat->clear();
+            while (model->rowCount() > 0)
+                model->removeRow(0);
+            idArchMsg = 0;
+        }
 }
 
-void MyServer::on_btnSaveChat_clicked()
-{
-    idialog dial("Вы действительно хотите сохранить чат?");
-    dial.setWindowTitle("Сохранение");
-    if (dial.exec() == QDialog::Accepted)
-    {
-        if (!chatPath.exists())
-            chatPath.mkpath(".");
-        QString path = chatPath.path() + "/" + QDateTime::currentDateTime().toString("dd-MM-yyyy-hh-mm-ss") + ".txt";
-        QFile chatFile(path);
-        if (!chatFile.open(QIODevice::WriteOnly))
-            QMessageBox::critical(0, "Ошибка", "Не удалось открыть файл");
-        QByteArray log = ui->txtChat->toPlainText().toUtf8();
-        chatFile.write(log);
-        chatFile.close();
-        ui->txtChat->append(QTime::currentTime().toString() + " СИСТЕМА: Журнал сохранен в " + path);
-    }
-}
+//void MyServer::on_btnSaveChat_clicked()
+//{
+//    idialog dial("Вы действительно хотите сохранить чат?");
+//    dial.setWindowTitle("Сохранение");
+//    if (dial.exec() == QDialog::Accepted)
+//    {
+//        if (!chatPath.exists())
+//            chatPath.mkpath(".");
+//        QString path = chatPath.path() + "/" + QDateTime::currentDateTime().toString("dd-MM-yyyy-hh-mm-ss") + ".txt";
+//        QFile chatFile(path);
+//        if (!chatFile.open(QIODevice::WriteOnly))
+//            QMessageBox::critical(0, "Ошибка", "Не удалось открыть файл");
+//        QByteArray log = ui->txtChat->toPlainText().toUtf8();
+//        chatFile.write(log);
+//        chatFile.close();
+//        ui->txtChat->append(QTime::currentTime().toString() + " СИСТЕМА: Журнал сохранен в " + path);
+//    }
+//}
 
 void MyServer::openUserSett()
 {
@@ -973,32 +983,77 @@ void MyServer::openUserSett()
     domDocument.setContent(&xmlFileSet);
     QDomElement topElement = domDocument.documentElement();
     QDomNode domNode = topElement.firstChild();
-    QDomElement domElement = domNode.toElement();
-    if (!domElement.isNull())
+    while (!domNode.isNull())
     {
-        if (domElement.tagName() == "settings")
+        QDomElement domElement = domNode.toElement();
+        if (!domElement.isNull())
         {
-            QDomNode node = domElement.firstChild();
-            while (!node.isNull())
+            if (domElement.tagName() == "settings")
             {
-                QDomElement element = node.toElement();
-                if (!element.isNull())
+                QDomNode node = domElement.firstChild();
+                while (!node.isNull())
                 {
-                    const QString tagName(element.tagName());
-                    if (tagName == "theme")
+                    QDomElement element = node.toElement();
+                    if (!element.isNull())
                     {
-                        checkTheme = element.text() == "d" ? true : false;
-                        on_actChangeTheme_triggered();
-                    } else if (tagName == "pathToFile")
-                    {
-                        filePath = element.text();
-                        ui->lineFilePath->setText(filePath);
+                        const QString tagName(element.tagName());
+                        if (tagName == "theme")
+                        {
+                            checkTheme = element.text() == "d" ? true : false;
+                            on_actChangeTheme_triggered();
+                        }
+                        else if (tagName == "pathToFile")
+                        {
+                            filePath = element.text();
+                            ui->lineFilePath->setText(filePath);
+                        }
+                        else if (tagName == "date")
+                        {
+                            dateForChat = QDate::fromString(element.text());
+                        }
                     }
+                    node = node.nextSibling();
                 }
-                node = node.nextSibling();
+            }
+            else// if (domElement.tagName() == "archive")
+            {
+                qDebug() << "ya tut";
+                QDomNode node = domElement.firstChild();
+                while (!node.isNull())
+                {
+                    QDomElement element = node.toElement();
+                    if (!element.isNull())
+                    {
+                        const QString tagName(element.tagName());
+                        if (tagName == "sender")
+                        {
+                            sFromSave = element.text();
+                        }
+                        else if (tagName == "receiver")
+                        {
+                            rFromSave = element.text();
+                        }
+                        else if (tagName == "message")
+                        {
+                            mFromSave = element.text();
+                            addArchChat(sFromSave, rFromSave, mFromSave);
+                        }
+                    }
+                    node = node.nextSibling();
+                }
             }
         }
+        domNode = domNode.nextSibling();
     }
+
+    QFile chatFile(chatPath.path() + "/chatSave.txt");
+        if(chatFile.open(QIODevice::ReadOnly |QIODevice::Text))
+        {
+            while(!chatFile.atEnd())
+                ui->txtChat->append(chatFile.readAll());
+        }
+
+
 }
 
 void MyServer::saveUserSett()
@@ -1022,26 +1077,61 @@ void MyServer::saveUserSett()
         xmlWriter.writeCharacters(filePath);
         xmlWriter.writeEndElement();
 
+        xmlWriter.writeStartElement("date");
+        xmlWriter.writeCharacters(dateForChat.toString());
         xmlWriter.writeEndElement();
+
+        xmlWriter.writeEndElement();
+
+
+        xmlWriter.writeStartElement("archive");
+
+        for (int i = 0; i < idArchMsg; i++)
+        {
+            xmlWriter.writeStartElement("sender");
+            xmlWriter.writeCharacters(model->data(model->index(i, 0)).toString());
+            xmlWriter.writeEndElement();
+
+            xmlWriter.writeStartElement("receiver");
+            xmlWriter.writeCharacters(model->data(model->index(i, 1)).toString());
+            xmlWriter.writeEndElement();
+
+            xmlWriter.writeStartElement("message");
+            xmlWriter.writeCharacters(model->data(model->index(i, 2)).toString());
+            xmlWriter.writeEndElement();
+        }
+
+        xmlWriter.writeEndElement();
+
         xmlWriter.writeEndElement();
         xmlWriter.writeEndDocument();
         file.close();
     }
-}
 
-void MyServer::on_lineFilePath_editingFinished()
-{
-    QString strFilePath = ui->lineFilePath->text();
-    if (strFilePath[strFilePath.length()-1] != "/")
-    {
-        strFilePath += "/";
-        ui->lineFilePath->setText(strFilePath);
+        if (!chatPath.exists())
+            chatPath.mkpath(".");
+        QFile chatFile(chatPath.path() + "/chatSave.txt");
+        if (chatFile.open(QIODevice::WriteOnly))
+        {
+            QByteArray log = ui->txtChat->toPlainText().toUtf8();
+            chatFile.write(log);
+            chatFile.close();
+        }
     }
-    QDir dir(strFilePath);
 
-    if (!dir.exists())
+    void MyServer::on_lineFilePath_editingFinished()
     {
-        dir.mkpath(".");
+        QString strFilePath = ui->lineFilePath->text();
+        if (strFilePath[strFilePath.length()-1] != "/")
+        {
+            strFilePath += "/";
+            ui->lineFilePath->setText(strFilePath);
+        }
+        QDir dir(strFilePath);
+
+        if (!dir.exists())
+        {
+            dir.mkpath(".");
+        }
+        filePath = strFilePath;
     }
-    filePath = strFilePath;
-}

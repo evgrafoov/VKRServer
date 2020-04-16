@@ -9,6 +9,7 @@
 #include <QListWidgetItem>
 #include <QtXml>
 #include <QStandardItemModel>
+#include <QDateTime>
 
 class QTcpServer;
 class QTextEdit;
@@ -61,10 +62,12 @@ private:
     QString fileName;
     quint64 fileSize;
     QFile target;
+    QString sFromSave, rFromSave, mFromSave;
+    QDate dateForChat;
 
     QStandardItemModel *model = new QStandardItemModel;
     QStringList horizontalHeader = {"Отправитель", "Получатель", "Сообщение"};
-    qint64 idArchMsg;
+    qint64 idArchMsg = 0;
 
 public:
     MyServer(int nPort, QWidget* pwgt = 0);
@@ -107,8 +110,6 @@ private slots:
     void on_actMinimize_triggered();
 
     void on_btnClearChat_clicked();
-
-    void on_btnSaveChat_clicked();
 
     void on_actChangeTheme_triggered();
 
