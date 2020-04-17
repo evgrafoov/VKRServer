@@ -15,8 +15,8 @@
         <file>img/addClient.png</file>
         <file>img/delClient.png</file>
         <file>img/execProc.png</file>
-        <file>img/info.png</file>
         <file>img/error.png</file>
+        <file>img/info.png</file>
         <file>img/input.png</file>
     </qresource>
 </RCC>

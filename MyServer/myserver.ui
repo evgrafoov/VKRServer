@@ -469,7 +469,7 @@
            </property>
            <layout class="QVBoxLayout" name="verticalLayout_6">
             <item>
-             <layout class="QHBoxLayout" name="horizontalLayout_6">
+             <layout class="QHBoxLayout" name="hlayChooseFile">
               <item>
                <widget class="QLabel" name="label_3">
                 <property name="font">
@@ -544,6 +544,7 @@
       <property name="font">
        <font>
         <family>Roboto</family>
+        <stylestrategy>PreferDefault</stylestrategy>
        </font>
       </property>
       <property name="title">
@@ -571,6 +572,7 @@
             <font>
              <family>Roboto</family>
              <pointsize>10</pointsize>
+             <stylestrategy>PreferDefault</stylestrategy>
             </font>
            </property>
            <property name="cursor">
@@ -592,6 +594,7 @@
           <font>
            <family>Roboto</family>
            <pointsize>11</pointsize>
+           <stylestrategy>PreferDefault</stylestrategy>
           </font>
          </property>
          <property name="cursor" stdset="0">
@@ -619,6 +622,7 @@
             <font>
              <family>Roboto</family>
              <pointsize>11</pointsize>
+             <stylestrategy>PreferDefault</stylestrategy>
             </font>
            </property>
            <property name="styleSheet">
