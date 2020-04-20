@@ -69,6 +69,7 @@
 MyServer::MyServer(int nPort, QWidget* pwgt): QMainWindow(pwgt), m_nNextBlockSize(0), ui(new Ui::MyServer)
 {
     ui->setupUi(this);
+    qApp->setFont(QFont("Roboto", 13));
     m_ptcpServer = new QTcpServer(this);
     if (!m_ptcpServer->listen(QHostAddress::Any, nPort))
     {
@@ -103,8 +104,10 @@ MyServer::MyServer(int nPort, QWidget* pwgt): QMainWindow(pwgt), m_nNextBlockSiz
     ui->listClient->setIconSize(QSize(35, 35));
     ui->lineInText->setPlaceholderText("Напишите сообщение...");
     ui->txtClientInfo->setFixedHeight(100);
+    ui->btnClearLog->setEnabled(false);
+    ui->txtChat->toPlainText().trimmed() == "" ? ui->btnClearChat->setEnabled(false) : ui->btnClearChat->setEnabled(true);
 
-    if (dateForChat != QDate::currentDate())
+    if (dateForChat != QDate::currentDate() || ui->txtChat->toPlainText().trimmed() == "")
     {
         ui->txtChat->append("");
         ui->txtChat->append("-----" + QDate::currentDate().toString() + "-----");
@@ -571,82 +574,100 @@ void MyServer::on_btnAddClient_clicked()
 
 void MyServer::on_actSave_triggered()
 {
-    idialog dial("Вы действительно хотите сохранить список клиентов?");
-    dial.setWindowTitle("Сохранение");
-    if (dial.exec() == QDialog::Accepted)
+    if (ui->listClient->count() > 0)
     {
-        QFile file(savePath);
-        if (file.open(QIODevice::WriteOnly))
+        idialog dial("Вы действительно хотите сохранить список клиентов?");
+        dial.setWindowTitle("Сохранение");
+        if (dial.exec() == QDialog::Accepted)
         {
-            QXmlStreamWriter xmlWriter(&file);
-            xmlWriter.setAutoFormatting(true); // Устанавливаем автоформатирование текста
-            xmlWriter.writeStartDocument();     // Запускаем запись в документ
-            xmlWriter.writeStartElement("listclients");   // Записываем первый элемент с его именем.
-            QMap <quint16, client>::iterator it = clients.begin();
-            for (; it != clients.end(); it++)
+            QFile file(savePath);
+            if (file.open(QIODevice::WriteOnly))
             {
-                xmlWriter.writeStartElement("client");
+                QXmlStreamWriter xmlWriter(&file);
+                xmlWriter.setAutoFormatting(true); // Устанавливаем автоформатирование текста
+                xmlWriter.writeStartDocument();     // Запускаем запись в документ
+                xmlWriter.writeStartElement("listclients");   // Записываем первый элемент с его именем.
+                QMap <quint16, client>::iterator it = clients.begin();
+                for (; it != clients.end(); it++)
+                {
+                    xmlWriter.writeStartElement("client");
 
-                xmlWriter.writeStartElement("name");
-                xmlWriter.writeCharacters(it.value().name);
-                xmlWriter.writeEndElement();
+                    xmlWriter.writeStartElement("name");
+                    xmlWriter.writeCharacters(it.value().name);
+                    xmlWriter.writeEndElement();
 
-                xmlWriter.writeStartElement("ip");
-                xmlWriter.writeCharacters(it.value().ip.toString());
-                xmlWriter.writeEndElement();
+                    xmlWriter.writeStartElement("ip");
+                    xmlWriter.writeCharacters(it.value().ip.toString());
+                    xmlWriter.writeEndElement();
 
+                    xmlWriter.writeEndElement();
+                }
                 xmlWriter.writeEndElement();
+                xmlWriter.writeEndDocument();
+                file.close();
             }
-            xmlWriter.writeEndElement();
-            xmlWriter.writeEndDocument();
-            file.close();
+            else
+            {
+                errDialog err("Не удалось открыть файл!");
+                err.setWindowTitle("Ошибка");
+                err.exec();
+            }
         }
-        else
-        {
-            errDialog err("Не удалось открыть файл!");
-            err.setWindowTitle("Ошибка");
-            err.exec();
-        }
+    }
+    else
+    {
+        errDialog err("Список пользователей пуст!");
+        err.setWindowTitle("Ошибка");
+        err.exec();
     }
 }
 
 void MyServer::on_actSaveAs_triggered()
 {
-    savePath = QFileDialog::getSaveFileName(this,tr("Выберите директорию для сохранения"));
-    if (savePath.trimmed() != "")
+    if (ui->listClient->count() > 0)
     {
-        QFile file(savePath);
-        if (file.open(QIODevice::WriteOnly))
+        savePath = QFileDialog::getSaveFileName(this,tr("Выберите директорию для сохранения"));
+        if (savePath.trimmed() != "")
         {
-            QXmlStreamWriter xmlWriter(&file);
-            xmlWriter.setAutoFormatting(true); // Устанавливаем автоформатирование текста
-            xmlWriter.writeStartDocument();     // Запускаем запись в документ
-            xmlWriter.writeStartElement("listclients");   // Записываем первый элемент с его именем.
-            QMap <quint16, client>::iterator it = clients.begin();
-            for (; it != clients.end(); it++)
+            QFile file(savePath);
+            if (file.open(QIODevice::WriteOnly))
             {
-                xmlWriter.writeStartElement("client");
+                QXmlStreamWriter xmlWriter(&file);
+                xmlWriter.setAutoFormatting(true); // Устанавливаем автоформатирование текста
+                xmlWriter.writeStartDocument();     // Запускаем запись в документ
+                xmlWriter.writeStartElement("listclients");   // Записываем первый элемент с его именем.
+                QMap <quint16, client>::iterator it = clients.begin();
+                for (; it != clients.end(); it++)
+                {
+                    xmlWriter.writeStartElement("client");
 
-                xmlWriter.writeStartElement("name");
-                xmlWriter.writeCharacters(it.value().name);
-                xmlWriter.writeEndElement();
+                    xmlWriter.writeStartElement("name");
+                    xmlWriter.writeCharacters(it.value().name);
+                    xmlWriter.writeEndElement();
 
-                xmlWriter.writeStartElement("ip");
-                xmlWriter.writeCharacters(it.value().ip.toString());
-                xmlWriter.writeEndElement();
+                    xmlWriter.writeStartElement("ip");
+                    xmlWriter.writeCharacters(it.value().ip.toString());
+                    xmlWriter.writeEndElement();
 
+                    xmlWriter.writeEndElement();
+                }
                 xmlWriter.writeEndElement();
+                xmlWriter.writeEndDocument();
+                file.close();
             }
-            xmlWriter.writeEndElement();
-            xmlWriter.writeEndDocument();
-            file.close();
+            else
+            {
+                errDialog err("Не удалось открыть файл!");
+                err.setWindowTitle("Ошибка");
+                err.exec();
+            }
         }
-        else
-        {
-            errDialog err("Не удалось открыть файл!");
-            err.setWindowTitle("Ошибка");
-            err.exec();
-        }
+    }
+    else
+    {
+        errDialog err("Список пользователей пуст!");
+        err.setWindowTitle("Ошибка");
+        err.exec();
     }
 }
 
@@ -715,6 +736,12 @@ void MyServer::on_actOpen_triggered()
         dial.setWindowTitle("Открыть список клиентов");
         if (dial.exec() == QDialog::Accepted)
         {
+            QMap <quint16, client>::iterator it = clients.begin();
+            for (; it != clients.end(); it++)
+            {
+                if(it.value().state)
+                    it.value().socket->close();
+            }
             clients.clear();
             ui->listClient->clear();
             listC.clear();
@@ -840,28 +867,27 @@ void MyServer::on_btnExecProc_clicked()
         {
             if (ui->listClient->currentItem()->text() == it.value().name && it.value().state)
             {
-                bool flag;
-                QInputDialog inpPath;
-                QString text = inpPath.getText(0, tr("Ввод информации"), ui->listClient->currentItem()->text(), QLineEdit::Normal, "Введите путь", &flag);
-                if (flag && !text.isEmpty())
+                inputDial inpPath;
+                inpPath.setWindowTitle("Ввод пути файла");
+                if (inpPath.exec() == QDialog::Accepted)
                 {
                     quint16 typeMsg = 2;
                     QByteArray arrBlock;
                     QDataStream out (&arrBlock, QIODevice::WriteOnly);
                     out.setVersion(QDataStream::Qt_5_3);
-                    out << quint16(0) << typeMsg << QTime::currentTime() << text;
+                    out << quint16(0) << typeMsg << QTime::currentTime() << inpPath.sendName().trimmed();
                     out.device() -> seek(0);
                     out << (quint16)(arrBlock.size() - sizeof(quint16));
                     it.value().socket->write(arrBlock);
                 }
-                else
-                {
-                    errDialog err("Выбранный пользователь не в сети!");
-                    err.setWindowTitle("Ошибка");
-                    err.exec();
-                }
-                break;
             }
+            else
+            {
+                errDialog err("Выбранный пользователь не в сети!");
+                err.setWindowTitle("Ошибка");
+                err.exec();
+            }
+            break;
         }
     }
     else
@@ -941,15 +967,15 @@ void MyServer::on_actMinimize_triggered()
 
 void MyServer::on_btnClearChat_clicked()
 {
-        idialog dial("Вы действительно хотите очистить чат?");
-        dial.setWindowTitle("Очистка чата");
-        if (dial.exec() == QDialog::Accepted)
-        {
-            ui->txtChat->clear();
-            while (model->rowCount() > 0)
-                model->removeRow(0);
-            idArchMsg = 0;
-        }
+    idialog dial("Вы действительно хотите очистить чат?");
+    dial.setWindowTitle("Очистка чата");
+    if (dial.exec() == QDialog::Accepted)
+    {
+        ui->txtChat->clear();
+        while (model->rowCount() > 0)
+            model->removeRow(0);
+        idArchMsg = 0;
+    }
 }
 
 //void MyServer::on_btnSaveChat_clicked()
@@ -1047,11 +1073,11 @@ void MyServer::openUserSett()
     }
 
     QFile chatFile(chatPath.path() + "/chatSave.txt");
-        if(chatFile.open(QIODevice::ReadOnly |QIODevice::Text))
-        {
-            while(!chatFile.atEnd())
-                ui->txtChat->append(chatFile.readAll());
-        }
+    if(chatFile.open(QIODevice::ReadOnly |QIODevice::Text))
+    {
+        while(!chatFile.atEnd())
+            ui->txtChat->append(chatFile.readAll());
+    }
 
 
 }
@@ -1108,30 +1134,47 @@ void MyServer::saveUserSett()
         file.close();
     }
 
-        if (!chatPath.exists())
-            chatPath.mkpath(".");
-        QFile chatFile(chatPath.path() + "/chatSave.txt");
-        if (chatFile.open(QIODevice::WriteOnly))
-        {
-            QByteArray log = ui->txtChat->toPlainText().toUtf8();
-            chatFile.write(log);
-            chatFile.close();
-        }
-    }
-
-    void MyServer::on_lineFilePath_editingFinished()
+    if (!chatPath.exists())
+        chatPath.mkpath(".");
+    QFile chatFile(chatPath.path() + "/chatSave.txt");
+    if (chatFile.open(QIODevice::WriteOnly))
     {
-        QString strFilePath = ui->lineFilePath->text();
-        if (strFilePath[strFilePath.length()-1] != "/")
-        {
-            strFilePath += "/";
-            ui->lineFilePath->setText(strFilePath);
-        }
-        QDir dir(strFilePath);
-
-        if (!dir.exists())
-        {
-            dir.mkpath(".");
-        }
-        filePath = strFilePath;
+        QByteArray log = ui->txtChat->toPlainText().toUtf8();
+        chatFile.write(log);
+        chatFile.close();
     }
+}
+
+void MyServer::on_lineFilePath_editingFinished()
+{
+    QString strFilePath = ui->lineFilePath->text();
+    if (strFilePath[strFilePath.length()-1] != "/")
+    {
+        strFilePath += "/";
+        ui->lineFilePath->setText(strFilePath);
+    }
+    QDir dir(strFilePath);
+
+    if (!dir.exists())
+    {
+        dir.mkpath(".");
+    }
+    filePath = strFilePath;
+}
+
+void MyServer::on_txtLogClient_textChanged()
+{
+    if (ui->txtLogClient->toPlainText().trimmed() != "")
+        ui->btnClearLog->setEnabled(true);
+    else
+        ui->btnClearLog->setEnabled(false);
+
+}
+
+void MyServer::on_txtChat_textChanged()
+{
+    if (ui->txtChat->toPlainText().trimmed() != "")
+        ui->btnClearChat->setEnabled(true);
+    else
+        ui->btnClearChat->setEnabled(false);
+}

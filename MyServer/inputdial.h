@@ -16,6 +16,9 @@ public:
     ~inputDial();
     QString sendName();
 
+private slots:
+    void on_lineNewFile_textChanged(const QString &arg1);
+
 private:
     Ui::inputDial *ui;
 };

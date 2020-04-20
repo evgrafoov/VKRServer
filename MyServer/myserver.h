@@ -115,6 +115,10 @@ private slots:
 
     void on_lineFilePath_editingFinished();
 
+    void on_txtLogClient_textChanged();
+
+    void on_txtChat_textChanged();
+
 private:
     Ui::MyServer *ui;
 };

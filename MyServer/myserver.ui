@@ -24,94 +24,22 @@
   </property>
   <widget class="QWidget" name="centralwidget">
    <layout class="QGridLayout" name="gridLayout">
-    <item row="0" column="1" rowspan="2">
-     <widget class="QGroupBox" name="groupListClient">
+    <item row="0" column="0" rowspan="2">
+     <widget class="QGroupBox" name="groupChat">
       <property name="font">
        <font>
         <family>Roboto</family>
+        <stylestrategy>PreferDefault</stylestrategy>
        </font>
       </property>
       <property name="title">
-       <string>Клиенты</string>
+       <string>Чат</string>
       </property>
-      <layout class="QVBoxLayout" name="verticalLayout_5">
+      <layout class="QVBoxLayout" name="verticalLayout">
        <item>
-        <layout class="QHBoxLayout" name="hlaySort">
-         <property name="bottomMargin">
-          <number>0</number>
-         </property>
+        <layout class="QHBoxLayout" name="hlayActChat">
          <item>
-          <widget class="QLabel" name="lblSort">
-           <property name="sizePolicy">
-            <sizepolicy hsizetype="Minimum" vsizetype="Preferred">
-             <horstretch>0</horstretch>
-             <verstretch>0</verstretch>
-            </sizepolicy>
-           </property>
-           <property name="text">
-            <string>Сортировка</string>
-           </property>
-          </widget>
-         </item>
-         <item>
-          <widget class="QComboBox" name="cmbSortClients">
-           <property name="sizePolicy">
-            <sizepolicy hsizetype="MinimumExpanding" vsizetype="Preferred">
-             <horstretch>0</horstretch>
-             <verstretch>0</verstretch>
-            </sizepolicy>
-           </property>
-          </widget>
-         </item>
-        </layout>
-       </item>
-       <item>
-        <widget class="QLabel" name="lblAcceptClient">
-         <property name="text">
-          <string>Список разрешенных пользователей</string>
-         </property>
-        </widget>
-       </item>
-       <item>
-        <widget class="QListWidget" name="listClient">
-         <property name="minimumSize">
-          <size>
-           <width>130</width>
-           <height>0</height>
-          </size>
-         </property>
-         <property name="font">
-          <font>
-           <family>Roboto</family>
-           <pointsize>11</pointsize>
-          </font>
-         </property>
-         <property name="sortingEnabled">
-          <bool>false</bool>
-         </property>
-        </widget>
-       </item>
-       <item>
-        <widget class="QLabel" name="lblLogClient">
-         <property name="text">
-          <string>Логи клиентов</string>
-         </property>
-        </widget>
-       </item>
-       <item>
-        <widget class="QTextEdit" name="txtLogClient">
-         <property name="font">
-          <font>
-           <family>Roboto</family>
-           <pointsize>9</pointsize>
-          </font>
-         </property>
-        </widget>
-       </item>
-       <item>
-        <layout class="QHBoxLayout" name="hLayClearLog">
-         <item>
-          <spacer name="spacerClearLog">
+          <spacer name="spacerActChat">
            <property name="orientation">
             <enum>Qt::Horizontal</enum>
            </property>
@@ -124,18 +52,107 @@
           </spacer>
          </item>
          <item>
-          <widget class="QPushButton" name="btnClearLog">
+          <widget class="QPushButton" name="btnClearChat">
            <property name="font">
             <font>
              <family>Roboto</family>
              <pointsize>10</pointsize>
+             <stylestrategy>PreferDefault</stylestrategy>
             </font>
            </property>
            <property name="cursor">
             <cursorShape>PointingHandCursor</cursorShape>
            </property>
+           <property name="styleSheet">
+            <string notr="true"/>
+           </property>
            <property name="text">
-            <string>Очистить</string>
+            <string>Очистить </string>
+           </property>
+          </widget>
+         </item>
+        </layout>
+       </item>
+       <item>
+        <widget class="QTextEdit" name="txtChat">
+         <property name="minimumSize">
+          <size>
+           <width>130</width>
+           <height>0</height>
+          </size>
+         </property>
+         <property name="font">
+          <font>
+           <family>Roboto</family>
+           <pointsize>11</pointsize>
+           <stylestrategy>PreferDefault</stylestrategy>
+          </font>
+         </property>
+         <property name="cursor" stdset="0">
+          <cursorShape>ArrowCursor</cursorShape>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <layout class="QHBoxLayout" name="hlayInputMsg">
+         <item>
+          <widget class="QLineEdit" name="lineInText">
+           <property name="sizePolicy">
+            <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
+             <horstretch>0</horstretch>
+             <verstretch>0</verstretch>
+            </sizepolicy>
+           </property>
+           <property name="minimumSize">
+            <size>
+             <width>0</width>
+             <height>30</height>
+            </size>
+           </property>
+           <property name="font">
+            <font>
+             <family>Roboto</family>
+             <pointsize>11</pointsize>
+             <stylestrategy>PreferDefault</stylestrategy>
+            </font>
+           </property>
+           <property name="styleSheet">
+            <string notr="true"/>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="QPushButton" name="btnGoMsg">
+           <property name="minimumSize">
+            <size>
+             <width>0</width>
+             <height>30</height>
+            </size>
+           </property>
+           <property name="cursor">
+            <cursorShape>PointingHandCursor</cursorShape>
+           </property>
+           <property name="text">
+            <string/>
+           </property>
+           <property name="icon">
+            <iconset resource="resource.qrc">
+             <normaloff>:/rec/img/iconSend.png</normaloff>:/rec/img/iconSend.png</iconset>
+           </property>
+           <property name="iconSize">
+            <size>
+             <width>32</width>
+             <height>32</height>
+            </size>
+           </property>
+           <property name="autoDefault">
+            <bool>false</bool>
+           </property>
+           <property name="default">
+            <bool>false</bool>
+           </property>
+           <property name="flat">
+            <bool>true</bool>
            </property>
           </widget>
          </item>
@@ -144,7 +161,7 @@
       </layout>
      </widget>
     </item>
-    <item row="0" column="2" rowspan="2">
+    <item row="0" column="3" rowspan="2">
      <layout class="QVBoxLayout" name="vLayRight">
       <item>
        <widget class="Switch" name="chkUnblock">
@@ -448,6 +465,12 @@
            <layout class="QVBoxLayout" name="verticalLayout_2">
             <item>
              <widget class="QTableView" name="tblArchChat">
+              <property name="sizePolicy">
+               <sizepolicy hsizetype="Expanding" vsizetype="MinimumExpanding">
+                <horstretch>0</horstretch>
+                <verstretch>0</verstretch>
+               </sizepolicy>
+              </property>
               <property name="font">
                <font>
                 <family>Roboto</family>
@@ -539,22 +562,97 @@
       </item>
      </layout>
     </item>
-    <item row="1" column="0">
-     <widget class="QGroupBox" name="groupChat">
+    <item row="0" column="1">
+     <widget class="QGroupBox" name="groupListClient">
       <property name="font">
        <font>
         <family>Roboto</family>
-        <stylestrategy>PreferDefault</stylestrategy>
        </font>
       </property>
       <property name="title">
-       <string>Чат</string>
+       <string>Клиенты</string>
       </property>
-      <layout class="QVBoxLayout" name="verticalLayout">
+      <layout class="QVBoxLayout" name="verticalLayout_5">
        <item>
-        <layout class="QHBoxLayout" name="hlayActChat">
+        <layout class="QHBoxLayout" name="hlaySort">
+         <property name="bottomMargin">
+          <number>0</number>
+         </property>
          <item>
-          <spacer name="spacerActChat">
+          <widget class="QLabel" name="lblSort">
+           <property name="sizePolicy">
+            <sizepolicy hsizetype="Minimum" vsizetype="Preferred">
+             <horstretch>0</horstretch>
+             <verstretch>0</verstretch>
+            </sizepolicy>
+           </property>
+           <property name="text">
+            <string>Сортировка</string>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="QComboBox" name="cmbSortClients">
+           <property name="sizePolicy">
+            <sizepolicy hsizetype="MinimumExpanding" vsizetype="Preferred">
+             <horstretch>0</horstretch>
+             <verstretch>0</verstretch>
+            </sizepolicy>
+           </property>
+           <property name="editable">
+            <bool>false</bool>
+           </property>
+          </widget>
+         </item>
+        </layout>
+       </item>
+       <item>
+        <widget class="QLabel" name="lblAcceptClient">
+         <property name="text">
+          <string>Список разрешенных пользователей</string>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QListWidget" name="listClient">
+         <property name="minimumSize">
+          <size>
+           <width>130</width>
+           <height>0</height>
+          </size>
+         </property>
+         <property name="font">
+          <font>
+           <family>Roboto</family>
+           <pointsize>11</pointsize>
+          </font>
+         </property>
+         <property name="sortingEnabled">
+          <bool>false</bool>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QLabel" name="lblLogClient">
+         <property name="text">
+          <string>Логи клиентов</string>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QTextEdit" name="txtLogClient">
+         <property name="font">
+          <font>
+           <family>Roboto</family>
+           <pointsize>9</pointsize>
+          </font>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <layout class="QHBoxLayout" name="hLayClearLog">
+         <item>
+          <spacer name="spacerClearLog">
            <property name="orientation">
             <enum>Qt::Horizontal</enum>
            </property>
@@ -567,101 +665,18 @@
           </spacer>
          </item>
          <item>
-          <widget class="QPushButton" name="btnClearChat">
+          <widget class="QPushButton" name="btnClearLog">
            <property name="font">
             <font>
              <family>Roboto</family>
              <pointsize>10</pointsize>
-             <stylestrategy>PreferDefault</stylestrategy>
             </font>
            </property>
            <property name="cursor">
             <cursorShape>PointingHandCursor</cursorShape>
            </property>
-           <property name="styleSheet">
-            <string notr="true"/>
-           </property>
            <property name="text">
-            <string>Очистить </string>
-           </property>
-          </widget>
-         </item>
-        </layout>
-       </item>
-       <item>
-        <widget class="QTextEdit" name="txtChat">
-         <property name="font">
-          <font>
-           <family>Roboto</family>
-           <pointsize>11</pointsize>
-           <stylestrategy>PreferDefault</stylestrategy>
-          </font>
-         </property>
-         <property name="cursor" stdset="0">
-          <cursorShape>ArrowCursor</cursorShape>
-         </property>
-        </widget>
-       </item>
-       <item>
-        <layout class="QHBoxLayout" name="hlayInputMsg">
-         <item>
-          <widget class="QLineEdit" name="lineInText">
-           <property name="sizePolicy">
-            <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
-             <horstretch>0</horstretch>
-             <verstretch>0</verstretch>
-            </sizepolicy>
-           </property>
-           <property name="minimumSize">
-            <size>
-             <width>0</width>
-             <height>30</height>
-            </size>
-           </property>
-           <property name="font">
-            <font>
-             <family>Roboto</family>
-             <pointsize>11</pointsize>
-             <stylestrategy>PreferDefault</stylestrategy>
-            </font>
-           </property>
-           <property name="styleSheet">
-            <string notr="true"/>
-           </property>
-          </widget>
-         </item>
-         <item>
-          <widget class="QPushButton" name="btnGoMsg">
-           <property name="minimumSize">
-            <size>
-             <width>0</width>
-             <height>30</height>
-            </size>
-           </property>
-           <property name="cursor">
-            <cursorShape>PointingHandCursor</cursorShape>
-           </property>
-           <property name="text">
-            <string/>
-           </property>
-           <property name="icon">
-            <iconset resource="resource.qrc">
-             <normaloff>:/rec/img/iconSend.png</normaloff>:/rec/img/iconSend.png</iconset>
-           </property>
-           <property name="iconSize">
-            <size>
-             <width>32</width>
-             <height>32</height>
-            </size>
-           </property>
-           <property name="autoDefault">
-            <bool>false</bool>
-           </property>
-           <property name="default">
-            <bool>false</bool>
-           </property>
-           <property name="flat">
-            <bool>true</bool>
+            <string>Очистить</string>
            </property>
           </widget>
          </item>
@@ -755,6 +770,7 @@
    </attribute>
    <addaction name="actExit"/>
    <addaction name="actMinimize"/>
+   <addaction name="separator"/>
   </widget>
   <action name="actOpen">
    <property name="icon">
@@ -762,7 +778,10 @@
      <normaloff>:/rec/img/open.png</normaloff>:/rec/img/open.png</iconset>
    </property>
    <property name="text">
-    <string>Открыть</string>
+    <string>Открыть список клиентов</string>
+   </property>
+   <property name="toolTip">
+    <string>Открыть список клиентов</string>
    </property>
    <property name="shortcut">
     <string>Ctrl+O</string>
@@ -774,7 +793,10 @@
      <normaloff>:/rec/img/save.png</normaloff>:/rec/img/save.png</iconset>
    </property>
    <property name="text">
-    <string>Сохранить</string>
+    <string>Сохранить список клиентов</string>
+   </property>
+   <property name="toolTip">
+    <string>Сохранить список клиентов</string>
    </property>
    <property name="shortcut">
     <string>Ctrl+S</string>
@@ -786,7 +808,10 @@
      <normaloff>:/rec/img/save_as.png</normaloff>:/rec/img/save_as.png</iconset>
    </property>
    <property name="text">
-    <string>Сохранить &amp;как</string>
+    <string>Сохранить &amp;как список клиентов</string>
+   </property>
+   <property name="toolTip">
+    <string>Сохранить как список клиентов</string>
    </property>
    <property name="shortcut">
     <string>Ctrl+U</string>
@@ -822,7 +847,7 @@
      <normaloff>:/rec/img/minimizeDarkMode.png</normaloff>:/rec/img/minimizeDarkMode.png</iconset>
    </property>
    <property name="text">
-    <string>Свернуть</string>
+    <string>&amp;Свернуть</string>
    </property>
   </action>
  </widget>
