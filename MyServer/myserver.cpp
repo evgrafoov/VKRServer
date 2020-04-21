@@ -696,21 +696,26 @@ void MyServer::on_btnDelClient_clicked()
     {
         if (ui->listClient->currentRow() != -1)
         {
-            QMap <quint16, client>::iterator it = clients.begin();
-            for (; it != clients.end(); it++)
+            idialog dial("Вы действительно хотите удалить клиента?");
+            dial.setWindowTitle("Удаление клиента");
+            if (dial.exec() == QDialog::Accepted)
             {
-                if (ui->listClient->currentItem()->text() == it.value().name)
+                QMap <quint16, client>::iterator it = clients.begin();
+                for (; it != clients.end(); it++)
                 {
-                    if (it.value().state)
-                        it.value().socket->close();
-                    ui->listClient->takeItem(ui->listClient->currentRow());
-                    listC.remove(it.value().name);
-                    clients.remove(it.key());
-                    return;
+                    if (ui->listClient->currentItem()->text() == it.value().name)
+                    {
+                        if (it.value().state)
+                            it.value().socket->close();
+                        ui->listClient->takeItem(ui->listClient->currentRow());
+                        listC.remove(it.value().name);
+                        clients.remove(it.key());
+                        return;
+                    }
                 }
+                on_cmbSortClients_currentIndexChanged(ui->cmbSortClients->currentText());
+                sendListClient();
             }
-            on_cmbSortClients_currentIndexChanged(ui->cmbSortClients->currentText());
-            sendListClient();
         }
         else
         {
