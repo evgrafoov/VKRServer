@@ -81,14 +81,11 @@ MyServer::MyServer(int nPort, QWidget* pwgt): QMainWindow(pwgt), m_nNextBlockSiz
     }
     connect(m_ptcpServer, SIGNAL (newConnection()), this, SLOT(newClient()));
     ui->btnGoMsg->setShortcut(Qt::Key_Return);
-
     ui->lineFilePath->setText(filePath);
-    openUserSett();
-
+    openUserSett();                                         //установка настроек клиента
     ui->btnAddClient->setToolTip("Добавить клиента");
     ui->btnDelClient->setToolTip("Удалить клиента");
     ui->btnExecProc->setToolTip("Запустить процесс");
-
     ui->txtChat->setReadOnly(true);
     ui->btnHideInfo->setText("Показать информацию");
     ui->chkUnblock->setDown(true);
@@ -106,7 +103,6 @@ MyServer::MyServer(int nPort, QWidget* pwgt): QMainWindow(pwgt), m_nNextBlockSiz
     ui->txtClientInfo->setFixedHeight(100);
     ui->btnClearLog->setEnabled(false);
     ui->txtChat->toPlainText().trimmed() == "" ? ui->btnClearChat->setEnabled(false) : ui->btnClearChat->setEnabled(true);
-
     if (dateForChat != QDate::currentDate() || ui->txtChat->toPlainText().trimmed() == "")
     {
         ui->txtChat->append("");
@@ -114,13 +110,7 @@ MyServer::MyServer(int nPort, QWidget* pwgt): QMainWindow(pwgt), m_nNextBlockSiz
         ui->txtChat->append("");
         dateForChat = QDate::currentDate();
     }
-
     model->setHorizontalHeaderLabels(horizontalHeader);
-
-    ui->lineIP->installEventFilter(this);
-    ui->lineName->installEventFilter(this);
-    ui->lineInText->installEventFilter(this);
-    ui->lineFilePath->installEventFilter(this);
 }
 
 // ~MyServer - деструктор.
@@ -129,9 +119,12 @@ MyServer::~MyServer()
     delete ui;
 }
 
-/* slotNewConnection - подключение нового клиента.
+/* newClient - подключение нового клиента.
  * Локальные переменные:
- *      pClientSocket - сокет текущего клиента.
+ *      pClientSocket - сокет текущего клиента;
+ *      flag - флаг для проверки подключения клиента;
+ *      it - итератор по клиентам;
+ *      i - итератор по элементам списка.
  */
 void MyServer::newClient()
 {
@@ -147,13 +140,13 @@ void MyServer::newClient()
             connect (pClientSocket, SIGNAL(disconnected()), pClientSocket, SLOT(deleteLater()));
             connect (pClientSocket, SIGNAL(readyRead()), this, SLOT(readClient()));
             it.value().state = true;
-            sendListClient();
+            sendListClient();                                       // отправка нового списка клиентов
             for(int i=0;i<ui->listClient->count();i++)
             {
                 QListWidgetItem* item= ui->listClient->item(i);
                 if(item->text()==it.value().name)
                 {
-                    ui->listClient->setCurrentItem(item);
+                    ui->listClient->setCurrentItem(item);           // Добавление клиента в список
                     QIcon ic(":/rec/img/accept.png");
                     item->setIcon(ic);
                 }
@@ -177,7 +170,7 @@ void MyServer::newClient()
     }
 }
 
-/* slotReadClient - обработка запросов клиента.
+/* readClient - обработка запросов клиента.
  * Локальные переменные:
  *      pClientSocket - сокет текущего клиента;
  *      in - чтение данных из сокета;
@@ -185,10 +178,14 @@ void MyServer::newClient()
  *      time - время отправки сообщения;
  *      str - сообщение от пользователя;
  *      name - имя клиента;
- *      strMessage - данные, отправляемые клиенту;
+ *      clientReciever - имя получателя;
+ *      m_nNextBlockSize - размер очередного блока;
+ *      it - итератор по клиентам;
  *      fileName - имя файла;
+ *      dial - диалоговое окно с вводом нового имени файла;
  *      line - считывание очередной части файла из сокета;
- *      target - конечный путь сохранения файлов.
+ *      target - конечный путь сохранения файлов;
+ *      i - итератор по списку клиентов.
  */
 void MyServer::readClient()
 {
@@ -213,7 +210,7 @@ void MyServer::readClient()
         {
             break;
         }
-        in >> mode;             // Выбор типа взаимодействия
+        in >> mode;             // Получение типа взаимодействия
 
         QMap <quint16, client>::iterator it = clients.begin();
         for (; it != clients.end(); it++)
@@ -233,7 +230,7 @@ void MyServer::readClient()
             m_nNextBlockSize = 0;
             if (clientReciever == "Все")
             {
-                sendToAllClients(name + ": " + str);
+                sendToAllClients(name + ": " + str);            // Отправка сообщения всем клиентам
             }
             else
             {
@@ -242,20 +239,20 @@ void MyServer::readClient()
                 {
                     if (it.value().name == clientReciever)
                     {
-                        sendToSpecClient(pClientSocket, it.value().socket, name + ": " + str);
+                        sendToSpecClient(pClientSocket, it.value().socket, name + ": " + str);  // Отправка сообщения выбранному клиенту
                         break;
                     }
                 }
             }
-            addArchChat(name, clientReciever, str);
+            addArchChat(name, clientReciever, str);             // Добавление сообщения в архив
         }
             break;
         case 22:
         {
             on_lineFilePath_editingFinished();
-            in >> fileName >> fileSize;
+            in >> fileName >> fileSize;                         // Получение имени и размера файла
             target.setFileName(filePath + fileName);
-            while (target.exists())
+            while (target.exists())                             // Проверка на существующий файл
             {
                 idialog dial("Файл с таким именем уже существует! Удалить существующий файл?");
                 dial.setWindowTitle("Информация");
@@ -303,8 +300,7 @@ void MyServer::readClient()
         case 33:
         {
             QByteArray line = pClientSocket->read(63000);
-            target.write(line);
-            //emit onFinishRecieved();
+            target.write(line);                             // Запись в файл части файла
             m_nNextBlockSize = 0;
             sendService(pClientSocket);
         }
@@ -315,7 +311,6 @@ void MyServer::readClient()
             if (fileSize == (quint64)target.size())
             {
                 ui->txtChat->append("Файл " + fileName + " успешно получен!");
-                //emit onFinishRecieved();
                 m_nNextBlockSize = 0;
                 sendToSpecClient(pClientSocket, "Файл " + fileName + " успешно отправлен");
             }
@@ -323,7 +318,6 @@ void MyServer::readClient()
             {
                 ui->txtChat->append("Файл " + fileName + " получен некорректно. Он будет удален");
                 target.remove();
-                //emit onFinishRecieved();
                 m_nNextBlockSize = 0;
                 sendToSpecClient(pClientSocket, "Файл " + fileName + " отправлен некорректно. Повторите отправку");
             }
@@ -334,7 +328,6 @@ void MyServer::readClient()
         {
             target.remove();
             ui->txtChat->append("Ошибка в отправке файла " + fileName);
-            //emit onFinishRecieved();
             m_nNextBlockSize = 0;
             sendToSpecClient(pClientSocket, "Ошибка! Повторите отправку файла " + fileName);
         }
@@ -346,7 +339,7 @@ void MyServer::readClient()
             {
                 if (pClientSocket == it.value().socket)
                 {
-                    QList<QListWidgetItem*> items_list; //Клиент, который отключился
+                    QList<QListWidgetItem*> items_list;             //Клиент, который отключился
                     items_list.append(ui->listClient->findItems(it.value().name, Qt::MatchFlag::MatchExactly));
                     for (int i = 0; i < items_list.size(); i++)
                     {
@@ -364,8 +357,8 @@ void MyServer::readClient()
                         }
                         it.value().state = false;
                     }
-                    break;
                 }
+                break;
             }
             pClientSocket->disconnectFromHost();
         }
@@ -374,13 +367,14 @@ void MyServer::readClient()
     }
 }
 
-/* sendToClient - отправка данных клиенту.
- * Формальные параметры:
- *      pSocket - сокет клиента;
- *      str - строка, отправляемая клиенту.
+/* sendToAllClients - отправка данных всем клиентам.
+ * Формальный параметр:
+ *      str - строка, отправляемая клиентам.
  * Локальные переменные:
+ *      typeMsg - тип отправляемого сообщения;
  *      arrBlock - блок для отправки данных клиенту;
- *      out - запить данных в сокет.
+ *      out - запить данных в сокет;
+ *      it - итератор по клиентам.
  */
 void MyServer::sendToAllClients(const QString &str)
 {
@@ -401,7 +395,18 @@ void MyServer::sendToAllClients(const QString &str)
     }
 }
 
-void MyServer::sendToSpecClient(QTcpSocket *pSender, QTcpSocket *pReciever, const QString &str)
+/* sendToSpecClient - отправка данных определенному клиенту.
+ * Формальные параметры:
+ *      pSender - сокет отправителя;
+ *      pReciever - сокет получателя;
+ *      str - строка, отправляемая клиентам.
+ * Локальные переменные:
+ *      typeMsg - тип отправляемого сообщения;
+ *      arrBlock - блок для отправки данных клиенту;
+ *      out - запить данных в сокет;
+ *      it - итератор по клиентам.
+ */
+void MyServer::sendToSpecClient(QTcpSocket *pSender, QTcpSocket *pReceiver, const QString &str)
 {
     quint16 typeMsg = 0;
     QByteArray arrBlock;
@@ -414,12 +419,22 @@ void MyServer::sendToSpecClient(QTcpSocket *pSender, QTcpSocket *pReciever, cons
     for (; it != clients.end(); it++)
     {
         if (it.value().socket == pSender && it.value().state)
-            pSender->write(arrBlock);
-        else if (it.value().socket == pReciever && it.value().state)
-            pReciever->write(arrBlock);
+            pSender->write(arrBlock);               // Отправка сообщения отправителю
+        if (it.value().socket == pReceiver && it.value().state)
+            pReceiver->write(arrBlock);             // Отправка сообщения получателю
     }
 }
 
+/* sendToSpecClient - отправка данных определенному клиенту.
+ * Формальные параметры:
+ *      pSender - сокет отправителя;
+ *      str - строка, отправляемая клиентам.
+ * Локальные переменные:
+ *      typeMsg - тип отправляемого сообщения;
+ *      arrBlock - блок для отправки данных клиенту;
+ *      out - запить данных в сокет;
+ *      it - итератор по клиентам.
+ */
 void MyServer::sendToSpecClient(QTcpSocket *pSender, const QString &str)
 {
     quint16 typeMsg = 0;
@@ -433,10 +448,19 @@ void MyServer::sendToSpecClient(QTcpSocket *pSender, const QString &str)
     for (; it != clients.end(); it++)
     {
         if (it.value().socket == pSender && it.value().state)
-            pSender->write(arrBlock);
+            pSender->write(arrBlock);           // Отправка сообщения клиенту
     }
 }
 
+/* sendToSpecClient - отправка сигнала клиенту.
+ * Формальный параметр:
+ *      pSender - сокет клиента.
+ * Локальные переменные:
+ *      typeMsg - тип отправляемого сообщения;
+ *      arrBlock - блок для отправки данных клиенту;
+ *      out - запить данных в сокет;
+ *      it - итератор по клиентам.
+ */
 void MyServer::sendService(QTcpSocket* pSocket)
 {
     quint16 typeMsg = 1;
@@ -451,12 +475,19 @@ void MyServer::sendService(QTcpSocket* pSocket)
     {
         if (it.value().socket == pSocket && it.value().state)
         {
-            pSocket->write(arrBlock);
+            pSocket->write(arrBlock);           // Отправка сигнала клиенту
             return;
         }
     }
 }
 
+/* sendListClient - отправка списка клиентов.
+ * Локальные переменные:
+ *      typeMsg - тип отправляемого сообщения;
+ *      arrBlock - блок для отправки данных клиенту;
+ *      out - запить данных в сокет;
+ *      it - итератор по клиентам.
+ */
 void MyServer::sendListClient()
 {
 
@@ -471,10 +502,20 @@ void MyServer::sendListClient()
     for (; it != clients.end(); it++)
     {
         if (it.value().state)
-            it.value().socket->write(arrBlock);
+            it.value().socket->write(arrBlock);     // Отправка списка клиентов
     }
 }
 
+/* addArchChat - добавление новой записи в архив.
+ * Формальные параметры:
+ *      sender - имя отправителя;
+ *      receiver - имя получателя;
+ *      str - строка сообщения.
+ * Локальные переменные:
+ *      strings - массив из добавляемых данных;
+ *      row - итератор по столбцам;
+ *      item - добавляемая строка в архив.
+ */
 void MyServer::addArchChat(QString sender, QString receiver, QString str)
 {   
     QList<QString> strings = {sender, receiver, str};
@@ -492,9 +533,8 @@ void MyServer::addArchChat(QString sender, QString receiver, QString str)
 }
 
 /* on_btnGoMsg_clicked - отправка сообщения клиентам.
- * Локальные переменные:
- *      strMessage - данные, отправляемые клиентам;
- *      it - итератор для контейнера.
+ * Локальная переменная:
+ *      strMessage - данные, отправляемые клиентам.
  */
 void MyServer::on_btnGoMsg_clicked()
 {
@@ -512,6 +552,12 @@ void MyServer::on_btnGoMsg_clicked()
     }
 }
 
+/* on_listClient_currentItemChanged - обновление информации в поле информации о клиенте.
+ * Формальный параметр:
+ *      current - текущий элемент списка.
+ * Локальная переменная:
+ *      it - итератор по клиентам.
+ */
 void MyServer::on_listClient_currentItemChanged(QListWidgetItem *current)
 {
     if (ui->listClient->count() > 1)
@@ -531,6 +577,10 @@ void MyServer::on_listClient_currentItemChanged(QListWidgetItem *current)
     }
 }
 
+/* on_btnAddClient_clicked - добавление нового клиента.
+ * Локальная переменная:
+ *      err - диалоговое окно с сообщением об ошибке.
+ */
 void MyServer::on_btnAddClient_clicked()
 {
     if (ui->lineIP->getIP().trimmed() != "" && ui->lineName->text().trimmed() != "")
@@ -572,6 +622,14 @@ void MyServer::on_btnAddClient_clicked()
     }
 }
 
+/* on_actSave_triggered - сохранение списка клиентов.
+ * Локальные переменные:
+ *      dial - диалоговое окно с подтверждением сохранения списка клиентов;
+ *      fileSaveList - файл, в который будет необходимо сохранить список клиентов;
+ *      xmlWriter - объект, с помощью которого осуществляется запись в файл;
+ *      it - итератор по клиентам;
+ *      err - диалоговое окно с сообщением об ошибке.
+ */
 void MyServer::on_actSave_triggered()
 {
     if (ui->listClient->count() > 0)
@@ -580,13 +638,13 @@ void MyServer::on_actSave_triggered()
         dial.setWindowTitle("Сохранение");
         if (dial.exec() == QDialog::Accepted)
         {
-            QFile file(savePath);
-            if (file.open(QIODevice::WriteOnly))
+            QFile fileSaveList(savePath);
+            if (fileSaveList.open(QIODevice::WriteOnly))
             {
-                QXmlStreamWriter xmlWriter(&file);
-                xmlWriter.setAutoFormatting(true); // Устанавливаем автоформатирование текста
-                xmlWriter.writeStartDocument();     // Запускаем запись в документ
-                xmlWriter.writeStartElement("listclients");   // Записываем первый элемент с его именем.
+                QXmlStreamWriter xmlWriter(&fileSaveList);
+                xmlWriter.setAutoFormatting(true);              // Устанавливаем автоформатирование текста
+                xmlWriter.writeStartDocument();                 // Запускаем запись в документ
+                xmlWriter.writeStartElement("listclients");     // Записываем первый элемент с его именем.
                 QMap <quint16, client>::iterator it = clients.begin();
                 for (; it != clients.end(); it++)
                 {
@@ -604,7 +662,7 @@ void MyServer::on_actSave_triggered()
                 }
                 xmlWriter.writeEndElement();
                 xmlWriter.writeEndDocument();
-                file.close();
+                fileSaveList.close();
             }
             else
             {
@@ -622,44 +680,57 @@ void MyServer::on_actSave_triggered()
     }
 }
 
+/* on_actSaveAs_triggered - сохранение списка клиентов в выбранный файл.
+ * Локальные переменные:
+ *      dial - диалоговое окно с подтверждением сохранения списка клиентов;
+ *      fileSaveList - файл, в который будет необходимо сохранить список клиентов;
+ *      xmlWriter - объект, с помощью которого осуществляется запись в файл;
+ *      it - итератор по клиентам;
+ *      err - диалоговое окно с сообщением об ошибке.
+ */
 void MyServer::on_actSaveAs_triggered()
 {
     if (ui->listClient->count() > 0)
     {
-        savePath = QFileDialog::getSaveFileName(this,tr("Выберите директорию для сохранения"));
-        if (savePath.trimmed() != "")
+        idialog dial("Вы действительно хотите сохранить список клиентов?");
+        dial.setWindowTitle("Сохранение");
+        if (dial.exec() == QDialog::Accepted)
         {
-            QFile file(savePath);
-            if (file.open(QIODevice::WriteOnly))
+            savePath = QFileDialog::getSaveFileName(this,tr("Выберите директорию для сохранения"));
+            if (savePath.trimmed() != "")
             {
-                QXmlStreamWriter xmlWriter(&file);
-                xmlWriter.setAutoFormatting(true); // Устанавливаем автоформатирование текста
-                xmlWriter.writeStartDocument();     // Запускаем запись в документ
-                xmlWriter.writeStartElement("listclients");   // Записываем первый элемент с его именем.
-                QMap <quint16, client>::iterator it = clients.begin();
-                for (; it != clients.end(); it++)
+                QFile fileSaveList(savePath);
+                if (fileSaveList.open(QIODevice::WriteOnly))
                 {
-                    xmlWriter.writeStartElement("client");
+                    QXmlStreamWriter xmlWriter(&fileSaveList);
+                    xmlWriter.setAutoFormatting(true);              // Устанавливаем автоформатирование текста
+                    xmlWriter.writeStartDocument();                 // Запускаем запись в документ
+                    xmlWriter.writeStartElement("listclients");     // Записываем первый элемент с его именем.
+                    QMap <quint16, client>::iterator it = clients.begin();
+                    for (; it != clients.end(); it++)
+                    {
+                        xmlWriter.writeStartElement("client");
 
-                    xmlWriter.writeStartElement("name");
-                    xmlWriter.writeCharacters(it.value().name);
-                    xmlWriter.writeEndElement();
+                        xmlWriter.writeStartElement("name");
+                        xmlWriter.writeCharacters(it.value().name);
+                        xmlWriter.writeEndElement();
 
-                    xmlWriter.writeStartElement("ip");
-                    xmlWriter.writeCharacters(it.value().ip.toString());
-                    xmlWriter.writeEndElement();
+                        xmlWriter.writeStartElement("ip");
+                        xmlWriter.writeCharacters(it.value().ip.toString());
+                        xmlWriter.writeEndElement();
 
+                        xmlWriter.writeEndElement();
+                    }
                     xmlWriter.writeEndElement();
+                    xmlWriter.writeEndDocument();
+                    fileSaveList.close();
                 }
-                xmlWriter.writeEndElement();
-                xmlWriter.writeEndDocument();
-                file.close();
-            }
-            else
-            {
-                errDialog err("Не удалось открыть файл!");
-                err.setWindowTitle("Ошибка");
-                err.exec();
+                else
+                {
+                    errDialog err("Не удалось открыть файл!");
+                    err.setWindowTitle("Ошибка");
+                    err.exec();
+                }
             }
         }
     }
@@ -671,6 +742,11 @@ void MyServer::on_actSaveAs_triggered()
     }
 }
 
+/* on_actExit_triggered - выход из программы.
+ * Локальные переменные:
+ *      dial - диалоговое окно с подтверждением выхода из программы;
+ *      it - итератор по клиентам.
+ */
 void MyServer::on_actExit_triggered()
 {
     idialog dial("Вы действительно хотите закрыть программу?");
@@ -681,7 +757,7 @@ void MyServer::on_actExit_triggered()
         QMap <quint16, client>::iterator it = clients.begin();
         for (; it != clients.end(); it++)
         {
-            if(it.value().state)
+            if (it.value().state)
                 it.value().socket->close();
         }
         clients.clear();
@@ -690,6 +766,12 @@ void MyServer::on_actExit_triggered()
     }
 }
 
+/* on_btnDelClient_clicked - удаление клиента.
+ * Локальные переменные:
+ *      dial - диалоговое окно с подтверждением удаления клиента;
+ *      it - итератор по клиентам;
+ *      err - диалоговое окно с сообщением об ошибке.
+ */
 void MyServer::on_btnDelClient_clicked()
 {
     if (ui->listClient->count() > 0)
@@ -732,9 +814,23 @@ void MyServer::on_btnDelClient_clicked()
     }
 }
 
+/* on_actOpen_triggered - открытие списка клиентов.
+ * Локальные переменные:
+ *      fileDir - имя файла со списком клиентов.
+ *      dial - диалоговое окно с предупреждением о потере уже добавленных клиентов;
+ *      it - итератор по клиентам;
+ *      xmlFile - файл со списком клиентов;
+ *      domDocument - xml-документ;
+ *      domNode - элемент xml-документа;
+ *      nameCurClient - имя клиента;
+ *      domElement - тег xml-документа;
+ *      node - текущий раздел;
+ *      element - текущий элемент;
+ *      tagName - имя текущего элемента;
+ */
 void MyServer::on_actOpen_triggered()
 {
-    QString fileDir = QFileDialog::getOpenFileName(this,tr("Выберите файл для сохранения"));
+    QString fileDir = QFileDialog::getOpenFileName(this,tr("Выберите файл, который необходимо открыть"));
     if (fileDir.trimmed() != "")
     {
         idialog dial("Открытие списка приведет к потере уже добавленных клиентов!\n Вы действительно хотите открыть файл?");
@@ -758,8 +854,7 @@ void MyServer::on_actOpen_triggered()
             }
             QDomDocument domDocument;
             domDocument.setContent(&xmlFile);
-            QDomElement topElement = domDocument.documentElement();
-            QDomNode domNode = topElement.firstChild();
+            QDomNode domNode = domDocument.documentElement().firstChild();
             QString nameCurClient;
             while (!domNode.isNull())
             {
@@ -780,7 +875,7 @@ void MyServer::on_actOpen_triggered()
                                 {
                                     ui->listClient->addItem(new QListWidgetItem(QIcon(":/rec/img/decline.png"), element.text()));
                                     clients[identity].name = element.text();
-                                    clients[identity].state = false;        //статус - "Не подключен"
+                                    clients[identity].state = false;            //статус - "Не подключен"
                                     nameCurClient = element.text();
                                 } else if (tagName == "ip")
                                 {
@@ -800,6 +895,11 @@ void MyServer::on_actOpen_triggered()
     }
 }
 
+/* on_btnHideInfo_clicked - информация о выбранном клиенте.
+ * Локальные переменные:
+ *      it - итератор по клиентам;
+ *      err - диалоговое окно с сообщением об ошибке.
+ */
 void MyServer::on_btnHideInfo_clicked()
 {
     if (!checkBtn)
@@ -836,6 +936,10 @@ void MyServer::on_btnHideInfo_clicked()
     checkBtn = !checkBtn;
 }
 
+/* on_cmbSortClients_currentIndexChanged - информация о выбранном клиенте.
+ * Формальный параметр:
+ *      arg1 - текст выбранного поля.
+ */
 void MyServer::on_cmbSortClients_currentIndexChanged(const QString &arg1)
 {
     if (arg1 == "↑ Имя")
@@ -848,11 +952,19 @@ void MyServer::on_cmbSortClients_currentIndexChanged(const QString &arg1)
     }
 }
 
+/* on_chkUnblock_toggled - разблокировка блока действий.
+ * Формальный параметр:
+ *      checked - переменная, отвечающая за разблокировку блока действий.
+ */
 void MyServer::on_chkUnblock_toggled(bool checked)
 {
     ui->vgroupInfo->setEnabled(checked);
 }
 
+/* on_btnClearLog_clicked - очистка логов клиентов.
+ * Локальная переменная:
+ *      idial - диалоговое окно с подтверждением очистки логов клиентов.
+ */
 void MyServer::on_btnClearLog_clicked()
 {
     idialog dial("Вы действительно хотите очистить поле логов?");
@@ -863,6 +975,14 @@ void MyServer::on_btnClearLog_clicked()
     }
 }
 
+/* on_btnExecProc_clicked - запуск процесса у выбранного клиента.
+ * Локальные переменные:
+ *      inpPath - диалоговое окно с вводом пути исполняемого файла;
+ *      typeMsg - тип отправляемого сообщения;
+ *      arrBlock - блок для отправки данных клиенту;
+ *      out - запить данных в сокет;
+ *      err - диалоговое окно с сообщением об ошибке.
+ */
 void MyServer::on_btnExecProc_clicked()
 {
     if (ui->listClient->currentRow() != -1)
@@ -903,6 +1023,10 @@ void MyServer::on_btnExecProc_clicked()
     }
 }
 
+/* on_btnChooseFile_clicked - выбор директории для сохранения файлов.
+ * Локальная переменная:
+ *      saveClients - директория для сохранения файлов.
+ */
 void MyServer::on_btnChooseFile_clicked()
 {
     QString saveClients = QFileDialog::getExistingDirectory(this,tr("Выберите директорию для сохранения"));
@@ -914,6 +1038,11 @@ void MyServer::on_btnChooseFile_clicked()
     }
 }
 
+/* on_actChangeTheme_triggered - смена темы приложения.
+ * Локальные переменные:
+ *      i - итератор для установки темной темы;
+ *      darkPalette - цветовая группа для темной темы.
+ */
 void MyServer::on_actChangeTheme_triggered()
 {
     if (checkTheme)
@@ -965,11 +1094,16 @@ void MyServer::on_actChangeTheme_triggered()
     checkTheme = !checkTheme;
 }
 
+/* on_actMinimize_triggered - сворачивание главного окна. */
 void MyServer::on_actMinimize_triggered()
 {
     showMinimized();
 }
 
+/* on_btnClearChat_clicked - очистка чата и архива сообщений.
+ * Локальная переменная:
+ *      dial - диалоговое окно с подтверждением очистки чата и архива сообщений.
+ */
 void MyServer::on_btnClearChat_clicked()
 {
     idialog dial("Вы действительно хотите очистить чат?");
@@ -983,25 +1117,17 @@ void MyServer::on_btnClearChat_clicked()
     }
 }
 
-//void MyServer::on_btnSaveChat_clicked()
-//{
-//    idialog dial("Вы действительно хотите сохранить чат?");
-//    dial.setWindowTitle("Сохранение");
-//    if (dial.exec() == QDialog::Accepted)
-//    {
-//        if (!chatPath.exists())
-//            chatPath.mkpath(".");
-//        QString path = chatPath.path() + "/" + QDateTime::currentDateTime().toString("dd-MM-yyyy-hh-mm-ss") + ".txt";
-//        QFile chatFile(path);
-//        if (!chatFile.open(QIODevice::WriteOnly))
-//            QMessageBox::critical(0, "Ошибка", "Не удалось открыть файл");
-//        QByteArray log = ui->txtChat->toPlainText().toUtf8();
-//        chatFile.write(log);
-//        chatFile.close();
-//        ui->txtChat->append(QTime::currentTime().toString() + " СИСТЕМА: Журнал сохранен в " + path);
-//    }
-//}
-
+/* openUserSett - открытие настроек пользователя.
+ * Локальные переменные:
+ *      xmlFileSet - файл с настройками пользователя;
+ *      domDocument - xml-документ;
+ *      domNode - элемент xml-документа;
+ *      domElement - тег xml-документа;
+ *      node - текущий раздел;
+ *      element - текущий элемент;
+ *      tagName - имя текущего элемента;
+ *      chatFile - файл, хранящий чат.
+ */
 void MyServer::openUserSett()
 {
     QFile xmlFileSet(fileUserSet);
@@ -1012,8 +1138,7 @@ void MyServer::openUserSett()
     }
     QDomDocument domDocument;
     domDocument.setContent(&xmlFileSet);
-    QDomElement topElement = domDocument.documentElement();
-    QDomNode domNode = topElement.firstChild();
+    QDomNode domNode = domDocument.documentElement().firstChild();
     while (!domNode.isNull())
     {
         QDomElement domElement = domNode.toElement();
@@ -1046,9 +1171,8 @@ void MyServer::openUserSett()
                     node = node.nextSibling();
                 }
             }
-            else// if (domElement.tagName() == "archive")
+            else if (domElement.tagName() == "archive")
             {
-                qDebug() << "ya tut";
                 QDomNode node = domElement.firstChild();
                 while (!node.isNull())
                 {
@@ -1087,14 +1211,22 @@ void MyServer::openUserSett()
 
 }
 
+/* saveUserSett - сохранение настроек пользователя.
+ * Локальные переменные:
+ *      xmlFileSet - файл с настройками пользователя;
+ *      xmlWriter - объект, с помощью которого осуществляется запись в файл;
+ *      i - итератор по строкам архива сообщений;
+ *      chatFile - файл, хранящий чат;
+ *      log - текст поля чата.
+ */
 void MyServer::saveUserSett()
 {
     if (!chatPath.exists())
         chatPath.mkpath(".");
-    QFile file(fileUserSet);
-    if (file.open(QIODevice::WriteOnly))
+    QFile xmlFileSet(fileUserSet);
+    if (xmlFileSet.open(QIODevice::WriteOnly))
     {
-        QXmlStreamWriter xmlWriter(&file);
+        QXmlStreamWriter xmlWriter(&xmlFileSet);
         xmlWriter.setAutoFormatting(true); // Устанавливаем автоформатирование текста
         xmlWriter.writeStartDocument();     // Запускаем запись в документ
         xmlWriter.writeStartElement("server");
@@ -1136,7 +1268,7 @@ void MyServer::saveUserSett()
 
         xmlWriter.writeEndElement();
         xmlWriter.writeEndDocument();
-        file.close();
+        xmlFileSet.close();
     }
 
     if (!chatPath.exists())
@@ -1150,6 +1282,11 @@ void MyServer::saveUserSett()
     }
 }
 
+/* on_lineFilePath_editingFinished - окончание изменения строки пути сохранения файлов.
+ * Локальные переменные:
+ *      strFilePath - введеный путь сохранения файлов;
+ *      dirFilePath - директория пути сохранения файлов.
+ */
 void MyServer::on_lineFilePath_editingFinished()
 {
     QString strFilePath = ui->lineFilePath->text();
@@ -1158,15 +1295,16 @@ void MyServer::on_lineFilePath_editingFinished()
         strFilePath += "/";
         ui->lineFilePath->setText(strFilePath);
     }
-    QDir dir(strFilePath);
+    QDir dirFilePath(strFilePath);
 
-    if (!dir.exists())
+    if (!dirFilePath.exists())
     {
-        dir.mkpath(".");
+        dirFilePath.mkpath(".");        // Создаем директорию, если она не существует
     }
     filePath = strFilePath;
 }
 
+/* on_txtLogClient_textChanged - изменение текста в поле логов клиентов. */
 void MyServer::on_txtLogClient_textChanged()
 {
     if (ui->txtLogClient->toPlainText().trimmed() != "")
@@ -1175,6 +1313,8 @@ void MyServer::on_txtLogClient_textChanged()
         ui->btnClearLog->setEnabled(false);
 
 }
+
+/* on_txtChat_textChanged - изменение текста в поле чата. */
 
 void MyServer::on_txtChat_textChanged()
 {

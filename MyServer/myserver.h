@@ -25,8 +25,8 @@ struct client
 {
     QString name;
     QHostAddress ip;
-    bool state = true;
     QTcpSocket* socket;
+    bool state;
 };
 
 class MyServer : public QMainWindow
@@ -34,14 +34,14 @@ class MyServer : public QMainWindow
     Q_OBJECT
 
 private:
-    void sendToAllClients(const QString& str);
+    void sendToAllClients(                    const QString& str                      );
     void sendToSpecClient(QTcpSocket *pSender, QTcpSocket* pSocket, const QString& str);
-    void sendToSpecClient(QTcpSocket *pSocket, const QString& str);
-    void sendService(QTcpSocket* pSocket);
-    void sendListClient();
-    void addArchChat(QString sender, QString receiver, QString str);
-    void openUserSett();
-    void saveUserSett();
+    void sendToSpecClient(         QTcpSocket *pSocket, const QString& str            );
+    void sendService     (                    QTcpSocket* pSocket                     );
+    void sendListClient  (                                                            );
+    void addArchChat     (        QString sender, QString receiver, QString str       );
+    void openUserSett    (                                                            );
+    void saveUserSett    (                                                            );
 
 signals:
     void onFinishRecieved();
@@ -50,24 +50,23 @@ private:
     QTcpServer* m_ptcpServer;
     quint16 m_nNextBlockSize;
     QMap<quint16, client> clients;
-    quint16 identity = 0;
-    QString filePath = QDir::homePath() + "/Desktop/";
-    QDir chatPath = QDir::homePath() + "/Desktop/ServerSettings/ChatArchive/";
-    bool checkBtn = false; //show
-    bool checkTheme = true;
-    QString savePath = QDir::homePath() + "/Desktop/listClient.xml";
-    QString fileUserSet = QDir::homePath() + "/Desktop/ServerSettings/setting.xml";
     QMap<QString, QString> listC;
-    bool checkFile = false;
     QString fileName;
     quint64 fileSize;
     QFile target;
     QString sFromSave, rFromSave, mFromSave;
     QDate dateForChat;
-
-    QStandardItemModel *model = new QStandardItemModel;
+    quint16 identity             = 0;
+    QString filePath             = QDir::homePath() + "/Desktop/";
+    QDir chatPath                = QDir::homePath() + "/Desktop/ServerSettings/ChatArchive/";
+    bool checkBtn                = false; //show
+    bool checkTheme              = true;
+    QString savePath             = QDir::homePath() + "/Desktop/listClient.xml";
+    QString fileUserSet          = QDir::homePath() + "/Desktop/ServerSettings/setting.xml";
+    bool checkFile               = false;
+    QStandardItemModel *model    = new QStandardItemModel;
     QStringList horizontalHeader = {"Отправитель", "Получатель", "Сообщение"};
-    qint64 idArchMsg = 0;
+    qint64 idArchMsg             = 0;
 
 public:
     MyServer(int nPort, QWidget* pwgt = 0);
