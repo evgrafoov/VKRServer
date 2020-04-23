@@ -7,15 +7,19 @@
 #include <QStyle>
 #include <QStyleFactory>
 
-Ip::Ip(QWidget *parent) :
+/*  Ip - конструктор класса Ip.
+ *  Формальный параметр:
+ *      parent - объект для отображения интерфейса.
+ *  Локальная переменная:
+ *      ipValidator - установка ограничений на ввод IP-адреса.
+ */
+Ip::Ip(QWidget* parent) :
     QFrame(parent),
     ui(new Ui::Ip)
 {
     ui->setupUi(this);
-
-    QString ipRange = "(?:[0-1]?[0-9]?[0-9]|2[0-4][0-9]|25[0-5])";
-    QRegExp ipRegex ("^" + ipRange + "$");
-    QRegExpValidator *ipValidator = new QRegExpValidator(ipRegex, this);
+    QRegExpValidator *ipValidator =
+            new QRegExpValidator(QRegExp("^(?:[0-1]?[0-9]?[0-9]|2[0-4][0-9]|25[0-5])$"), this);
     ui->lineEdit_1->setValidator(ipValidator);
     ui->lineEdit_2->setValidator(ipValidator);
     ui->lineEdit_3->setValidator(ipValidator);
@@ -27,11 +31,13 @@ Ip::Ip(QWidget *parent) :
     ui->lineEdit_4->installEventFilter(this);
 }
 
+//  ~Ip - деструктор класса Ip.
 Ip::~Ip()
 {
     delete ui;
 }
 
+// setNightMode - установка темной темы.
 void Ip::setNightMode()
 {
     Ip::setStyleSheet("QFrame{border: 1px solid #333333;"
@@ -42,6 +48,7 @@ void Ip::setNightMode()
 
 }
 
+// setLightMode - установка светлой темы.
 void Ip::setLightMode()
 {
     Ip::setStyleSheet("QFrame{border: 1px solid #ABABAB;"
@@ -54,6 +61,10 @@ void Ip::setLightMode()
 
 }
 
+/*  on_lineEdit_1_textChanged - изменение текста в первом поле ввода.
+ *  Формальный параметр:
+ *      arg1 - текущее значение первого поля ввода.
+ */
 void Ip::on_lineEdit_1_textChanged(const QString &arg1)
 {
     if(arg1.length() == 3 || (arg1.toInt() > 25 && arg1.toInt() < 100))
@@ -63,6 +74,10 @@ void Ip::on_lineEdit_1_textChanged(const QString &arg1)
     }
 }
 
+/*  on_lineEdit_2_textChanged - изменение текста во втором поле ввода.
+ *  Формальный параметр:
+ *      arg1 - текущее значение второго поля ввода.
+ */
 void Ip::on_lineEdit_2_textChanged(const QString &arg1)
 {
     if(arg1.length() == 3 || (arg1.toInt() > 25 && arg1.toInt() < 100))
@@ -77,6 +92,10 @@ void Ip::on_lineEdit_2_textChanged(const QString &arg1)
     }
 }
 
+/*  on_lineEdit_3_textChanged - изменение текста в третьем поле ввода.
+ *  Формальный параметр:
+ *      arg1 - текущее значение третьего поля ввода.
+ */
 void Ip::on_lineEdit_3_textChanged(const QString &arg1)
 {
     if(arg1.length()== 3 || (arg1.toInt() > 25 && arg1.toInt() < 100))
@@ -91,6 +110,10 @@ void Ip::on_lineEdit_3_textChanged(const QString &arg1)
     }
 }
 
+/*  on_lineEdit_4_textChanged - изменение текста в четвертом поле ввода.
+ *  Формальный параметр:
+ *      arg1 - текущее значение четверого поля ввода.
+ */
 void Ip::on_lineEdit_4_textChanged(const QString &arg1)
 {
     if(arg1.length() == 0)
@@ -100,22 +123,34 @@ void Ip::on_lineEdit_4_textChanged(const QString &arg1)
     }
 }
 
+//  getIP - получение значения IP-адреса.
 QString Ip::getIP()
 {
-    if (ui->lineEdit_1->text().isEmpty() || ui->lineEdit_2->text().isEmpty() || ui->lineEdit_3->text().isEmpty() || ui->lineEdit_4->text().isEmpty())
+    if (ui->lineEdit_1->text().isEmpty() ||
+            ui->lineEdit_2->text().isEmpty() ||
+            ui->lineEdit_3->text().isEmpty() ||
+            ui->lineEdit_4->text().isEmpty())
         return "1";
     else
-        return ui->lineEdit_1->text() + "." + ui->lineEdit_2->text() + "." + ui->lineEdit_3->text() + "." + ui->lineEdit_4->text();
+        return ui->lineEdit_1->text() + "." +
+                ui->lineEdit_2->text() + "." +
+                ui->lineEdit_3->text() + "." +
+                ui->lineEdit_4->text();
 }
 
+//  setEmpty - очистка всех полей ввода.
 void Ip::setEmpty()
 {
-    ui->lineEdit_1->setText("");
-    ui->lineEdit_2->setText("");
-    ui->lineEdit_3->setText("");
-    ui->lineEdit_4->setText("");
+    ui->lineEdit_1->clear();
+    ui->lineEdit_2->clear();
+    ui->lineEdit_3->clear();
+    ui->lineEdit_4->clear();
 }
 
+/*  setOnlyRead - установка режима "только для чтения".
+ *  Формальный параметр:
+ *      checked - переменная для установки режима "только для чтения".
+ */
 void Ip::setOnlyRead(bool checked)
 {
     ui->lineEdit_1->setReadOnly(checked);
@@ -124,6 +159,10 @@ void Ip::setOnlyRead(bool checked)
     ui->lineEdit_4->setReadOnly(checked);
 }
 
+/*  setIp - установка значения IP-адреса.
+ *  Формальный параметр:
+ *      allIP - значение IP-адреса.
+ */
 void Ip::setIp(QString allIP)
 {
     QStringList list = allIP.split('.');
@@ -133,6 +172,15 @@ void Ip::setIp(QString allIP)
     ui->lineEdit_4->setText(list[3]);
 }
 
+/*  eventFilter - обработка нажатий клавиш.
+ *  Формальные параметры:
+ *      obj - ;
+ *      event - ;
+ *  Локальные переменные:
+ *      lineEdit - ;
+ *      num - ;
+ *      keyEvent - .
+ */
 bool Ip::eventFilter(QObject *obj, QEvent *event) {
     QLineEdit *lineEdit = findChild<QLineEdit *>(obj->objectName());
     if(event->type() == QEvent::KeyPress)
@@ -181,10 +229,4 @@ bool Ip::eventFilter(QObject *obj, QEvent *event) {
     return false;
 }
 
-bool Ip::InFocus()
-{
-    if (ui->lineEdit_1->hasFocus() || ui->lineEdit_2->hasFocus() ||
-        ui->lineEdit_3->hasFocus() || ui->lineEdit_4->hasFocus())
-        return true;
-    return false;
-}
+

@@ -1,48 +1,3 @@
-/*  Отчет по практике по профессиональному модулю «ПМ.01 Разработка программных
- *  модулей программного обеспечения для компьютерных систем».
- *  Название: Practica2.
- *  Разработал: Евграфов Павел Александрович, группа ТМП-81.
- *  Дата и номер версии: 13.02.2020 v2.0.
- *  Язык программирования: C++.
- *  Краткое описание:
- *      Данный модуль позволяет взаимодействовать клиентам с сервером.
- *  Задание:
- *      Разработать серверную часть в модели «клиент-сервер». Необходимо реализовать прием
- *      сообщений и файлов от клиентов.
- *  Используемые методы:
- *      setNightMode – установка темной темы;
- *      setLightMode – установка темной темы;
- *      slotNewConnection – подключение нового клиента;
- *	slotReadClient – обработка запросов клиента;
- *	sendToClient – отправка данных клиену;
- *	on_btnFilePath_clicked – выбор пути сохранения файлов;
- *	on_cmbTheme_currentIndexChanged – смена темы;
- *	on_btnGoMsg_clicked – отправка сообщения клиентам.
- *  Используемые переменные:
- *      name – имя клиента;
- *      ip – IP адрес клиента;
- *      state – состояние клиента;
- *	socket – сокет клиента;
- *	m_ptcpServer – управление сервером;
- *	m_nNextBlockSize – длина следующего полученного от сокета блока;
- *	clients – контейнер, содержащий данные о клиентах;
- *	identity – идентификатор для хранения данных о клиентах;
- *	filepath – путь сохранения файлов;
- *	pClientSocket – сокет текущего клиента;
- *	in – чтение данных из сокета;
- *	mode – тип сообщения;
- *	time – время отправки сообщения;
- *	str – сообщение от пользователя;
- *	strMessage – данные, отправляемые клиенту;
- *	fileName – имя файла;
- *	line – считывание очередной части файла из сокета;
- *	target – конечный путь сохранения файлов;
- *	arrBlock – блок для отправки данных клиенту;
- *	out – записть данных в сокет;
- *	dir – директория сохранения файлов;
- *	it – итератор для контейнера.
-*/
-
 #include "myserver.h"
 #include "ui_myserver.h"
 #include <QTcpServer>
@@ -61,7 +16,7 @@
 #include <inputdial.h>
 
 
-/*  MyServer - конструктор
+/*  MyServer - конструктор класса MyServer.
  *  Формальные параметры:
  *      nPort - порт;
  *      pwgt - объект для отображения интерфейса.
@@ -113,7 +68,7 @@ MyServer::MyServer(int nPort, QWidget* pwgt): QMainWindow(pwgt), m_nNextBlockSiz
     model->setHorizontalHeaderLabels(horizontalHeader);
 }
 
-// ~MyServer - деструктор.
+// ~MyServer - деструктор класса MyServer.
 MyServer::~MyServer()
 {
     delete ui;
@@ -223,7 +178,7 @@ void MyServer::readClient()
         }
         switch (mode)
         {
-        case 11: //Сообщение
+        case 11:    // Сообщение
         {
             in >> time >> str >> clientReciever;
             ui->txtChat->append(time.toString() + " " + name + ": " + str);
@@ -247,7 +202,7 @@ void MyServer::readClient()
             addArchChat(name, clientReciever, str);             // Добавление сообщения в архив
         }
             break;
-        case 22:
+        case 22:    // Начало файла
         {
             on_lineFilePath_editingFinished();
             in >> fileName >> fileSize;                         // Получение имени и размера файла
@@ -297,7 +252,7 @@ void MyServer::readClient()
         }
             break;
 
-        case 33:
+        case 33:    // Часть файла
         {
             QByteArray line = pClientSocket->read(63000);
             target.write(line);                             // Запись в файл части файла
@@ -306,7 +261,7 @@ void MyServer::readClient()
         }
             break;
 
-        case 44:
+        case 44:    // Конец файла
         {
             if (fileSize == (quint64)target.size())
             {
@@ -324,7 +279,7 @@ void MyServer::readClient()
             target.close();
         }
             break;
-        case 55:
+        case 55:    // Ошибка в отправке файла
         {
             target.remove();
             ui->txtChat->append("Ошибка в отправке файла " + fileName);
@@ -332,7 +287,7 @@ void MyServer::readClient()
             sendToSpecClient(pClientSocket, "Ошибка! Повторите отправку файла " + fileName);
         }
             break;
-        case 66:
+        case 66:    // Отключение клиента
         {
             QMap <quint16, client>::iterator it = clients.begin();
             for (; it != clients.end(); it++)
@@ -367,7 +322,7 @@ void MyServer::readClient()
     }
 }
 
-/* sendToAllClients - отправка данных всем клиентам.
+/* sendToAllClients - отправка сообщения всем клиентам.
  * Формальный параметр:
  *      str - строка, отправляемая клиентам.
  * Локальные переменные:
@@ -395,7 +350,7 @@ void MyServer::sendToAllClients(const QString &str)
     }
 }
 
-/* sendToSpecClient - отправка данных определенному клиенту.
+/* sendToSpecClient - отправка сообщения определенному клиенту.
  * Формальные параметры:
  *      pSender - сокет отправителя;
  *      pReciever - сокет получателя;
@@ -420,12 +375,12 @@ void MyServer::sendToSpecClient(QTcpSocket *pSender, QTcpSocket *pReceiver, cons
     {
         if (it.value().socket == pSender && it.value().state)
             pSender->write(arrBlock);               // Отправка сообщения отправителю
-        if (it.value().socket == pReceiver && it.value().state)
+        else if (it.value().socket == pReceiver && it.value().state)
             pReceiver->write(arrBlock);             // Отправка сообщения получателю
     }
 }
 
-/* sendToSpecClient - отправка данных определенному клиенту.
+/* sendToSpecClient - отправка сообщения определенному клиенту.
  * Формальные параметры:
  *      pSender - сокет отправителя;
  *      str - строка, отправляемая клиентам.
@@ -452,7 +407,7 @@ void MyServer::sendToSpecClient(QTcpSocket *pSender, const QString &str)
     }
 }
 
-/* sendToSpecClient - отправка сигнала клиенту.
+/* sendToSpecClient - отправка служебного сообщения клиенту.
  * Формальный параметр:
  *      pSender - сокет клиента.
  * Локальные переменные:
@@ -475,7 +430,7 @@ void MyServer::sendService(QTcpSocket* pSocket)
     {
         if (it.value().socket == pSocket && it.value().state)
         {
-            pSocket->write(arrBlock);           // Отправка сигнала клиенту
+            pSocket->write(arrBlock);           // Отправка служебного сообщения клиенту
             return;
         }
     }
@@ -532,7 +487,7 @@ void MyServer::addArchChat(QString sender, QString receiver, QString str)
     idArchMsg++;
 }
 
-/* on_btnGoMsg_clicked - отправка сообщения клиентам.
+/* on_btnGoMsg_clicked - отправка текстового сообщения клиентам.
  * Локальная переменная:
  *      strMessage - данные, отправляемые клиентам.
  */
@@ -552,7 +507,7 @@ void MyServer::on_btnGoMsg_clicked()
     }
 }
 
-/* on_listClient_currentItemChanged - обновление информации в поле информации о клиенте.
+/* on_listClient_currentItemChanged - обновление информации о клиенте.
  * Формальный параметр:
  *      current - текущий элемент списка.
  * Локальная переменная:
@@ -936,7 +891,7 @@ void MyServer::on_btnHideInfo_clicked()
     checkBtn = !checkBtn;
 }
 
-/* on_cmbSortClients_currentIndexChanged - информация о выбранном клиенте.
+/* on_cmbSortClients_currentIndexChanged - сортировка списка клиентов.
  * Формальный параметр:
  *      arg1 - текст выбранного поля.
  */
@@ -1304,7 +1259,7 @@ void MyServer::on_lineFilePath_editingFinished()
     filePath = strFilePath;
 }
 
-/* on_txtLogClient_textChanged - изменение текста в поле логов клиентов. */
+/* on_txtLogClient_textChanged - проверка на возможность очистить логи клиентов. */
 void MyServer::on_txtLogClient_textChanged()
 {
     if (ui->txtLogClient->toPlainText().trimmed() != "")
@@ -1314,7 +1269,7 @@ void MyServer::on_txtLogClient_textChanged()
 
 }
 
-/* on_txtChat_textChanged - изменение текста в поле чата. */
+/* on_txtChat_textChanged - Проверка на возможность очистить чат и архив сообщений. */
 
 void MyServer::on_txtChat_textChanged()
 {
