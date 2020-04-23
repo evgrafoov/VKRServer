@@ -20,7 +20,6 @@ public:
     void setIp(QString allIP);
     void setNightMode();
     void setLightMode();
-    bool InFocus();
 
 private slots:
     void on_lineEdit_1_textChanged(const QString &arg1);
