@@ -61,7 +61,7 @@ void Ip::setLightMode()
 
 }
 
-/*  on_lineEdit_1_textChanged - изменение текста в первом поле ввода.
+/*  on_lineEdit_1_textChanged - изменение фокуса курсора при вводе в первое поле.
  *  Формальный параметр:
  *      arg1 - текущее значение первого поля ввода.
  */
@@ -74,7 +74,7 @@ void Ip::on_lineEdit_1_textChanged(const QString &arg1)
     }
 }
 
-/*  on_lineEdit_2_textChanged - изменение текста во втором поле ввода.
+/*  on_lineEdit_2_textChanged - изменение фокуса курсора при вводе во второе поле.
  *  Формальный параметр:
  *      arg1 - текущее значение второго поля ввода.
  */
@@ -92,7 +92,7 @@ void Ip::on_lineEdit_2_textChanged(const QString &arg1)
     }
 }
 
-/*  on_lineEdit_3_textChanged - изменение текста в третьем поле ввода.
+/*  on_lineEdit_3_textChanged - изменение фокуса курсора при вводе в третье поле.
  *  Формальный параметр:
  *      arg1 - текущее значение третьего поля ввода.
  */
@@ -110,7 +110,7 @@ void Ip::on_lineEdit_3_textChanged(const QString &arg1)
     }
 }
 
-/*  on_lineEdit_4_textChanged - изменение текста в четвертом поле ввода.
+/*  on_lineEdit_4_textChanged - изменение фокуса курсора при вводе в четвертое поле.
  *  Формальный параметр:
  *      arg1 - текущее значение четверого поля ввода.
  */
