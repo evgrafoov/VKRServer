@@ -1,21 +1,16 @@
+// MyServer - класс для просмотра, получения и обработки данных.
 #ifndef MYSERVER_H
 #define MYSERVER_H
 
 #include <QMainWindow>
 #include <QHostAddress>
 #include <QTcpSocket>
-#include <QByteArray>
+#include <QTcpServer>
 #include <QDir>
 #include <QListWidgetItem>
-#include <QtXml>
 #include <QStandardItemModel>
 #include <QDateTime>
 
-class QTcpServer;
-class QTextEdit;
-class QListWidget;
-class QLineEdit;
-class QTcpSocket;
 
 QT_BEGIN_NAMESPACE
 namespace Ui { class MyServer; }
@@ -34,17 +29,14 @@ class MyServer : public QMainWindow
     Q_OBJECT
 
 private:
-    void sendToAllClients(                    const QString& str                      );
+    void sendToAllClients(const QString& str);
     void sendToSpecClient(QTcpSocket *pSender, QTcpSocket* pSocket, const QString& str);
-    void sendToSpecClient(         QTcpSocket *pSocket, const QString& str            );
-    void sendService     (                    QTcpSocket* pSocket                     );
-    void sendListClient  (                                                            );
-    void addArchChat     (        QString sender, QString receiver, QString str       );
-    void openUserSett    (                                                            );
-    void saveUserSett    (                                                            );
-
-signals:
-    void onFinishRecieved();
+    void sendToSpecClient(QTcpSocket *pSocket, const QString& str);
+    void sendService(QTcpSocket* pSocket);
+    void sendListClient();
+    void addArchChat(QString sender, QString receiver, QString str);
+    void openUserSett();
+    void saveUserSett();
 
 private:
     QTcpServer* m_ptcpServer;
@@ -54,19 +46,21 @@ private:
     QString fileName;
     quint64 fileSize;
     QFile target;
-    QString sFromSave, rFromSave, mFromSave;
+    QString sFromSave;
+    QString rFromSave;
+    QString mFromSave;
     QDate dateForChat;
-    quint16 identity             = 0;
-    QString filePath             = QDir::homePath() + "/Desktop/";
-    QDir chatPath                = QDir::homePath() + "/Desktop/ServerSettings/ChatArchive/";
-    bool checkBtn                = false; //show
-    bool checkTheme              = true;
-    QString savePath             = QDir::homePath() + "/Desktop/listClient.xml";
-    QString fileUserSet          = QDir::homePath() + "/Desktop/ServerSettings/setting.xml";
-    bool checkFile               = false;
-    QStandardItemModel *model    = new QStandardItemModel;
+    quint16 identity = 0;
+    QString filePath = QDir::homePath() + "/Desktop/";
+    QDir chatPath = QDir::homePath() + "/Desktop/ServerSettings/ChatArchive/";
+    bool checkBtn = false;
+    bool checkTheme = true;
+    QString savePath = QDir::homePath() + "/Desktop/listClient.xml";
+    QString fileUserSet = QDir::homePath() + "/Desktop/ServerSettings/setting.xml";
+    bool checkFile = false;
+    QStandardItemModel *model = new QStandardItemModel;
     QStringList horizontalHeader = {"Отправитель", "Получатель", "Сообщение"};
-    qint64 idArchMsg             = 0;
+    qint64 idArchMsg = 0;
 
 public:
     MyServer(int nPort, QWidget* pwgt = 0);

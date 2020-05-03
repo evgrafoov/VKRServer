@@ -1,20 +1,71 @@
+/*  MyServer - класс для просмотра, получения и обработки данных.
+ * ***********************************************************
+ *  Используемые методы:
+ *
+ *  newClient() - подключение нового клиента;
+ *  readClient() - обработка запросов клиента;
+ *  sendToAllClients() - отправка сообщения всем клиентам;
+ *  sendToSpecClient() - отправка сообщения определенному клиенту;
+ *  sendService() - отправка служебного сообщения клиенту;
+ *  sendListClient() - отправка списка клиентов;
+ *  addArchChat () - добавление новой записи в архив;
+ *  on_btnGoMsg_clicked() - отправка текстового сообщения клиентам;
+ *  on_listClient_currentItemChanged() - обновление информации о клиенте;
+ *  on_btnAddClient_clicked() - добавление нового клиента;
+ *  on_actSave_triggered() - сохранение списка клиентов;
+ *  on_actSaveAs_triggered() - сохранение списка клиентов в выбранный файл;
+ *  on_actExit_triggered() - выход из программы;
+ *  on_btnDelClient_clicked() - удаление клиента;
+ *  on_actOpen_triggered() - открытие списка клиентов;
+ *  on_btnHideInfo_clicked() - информация о выбранном клиенте;
+ *  on_cmbSortClients_currentIndexChanged() - сортировка списка клиентов;
+ *  on_chkUnblock_toggled() - разблокировка блока действий;
+ *  on_btnClearLog_clicked() - очистка логов клиентов;
+ *  on_btnExecProc_clicked() - запуск процесса у выбранного клиента;
+ *  on_btnChooseFile_clicked() - выбор директории для сохранения файлов;
+ *  on_actChangeTheme_triggered() - смена темы приложения;
+ *  on_btnClearChat_clicked() - очистка чата и архива сообщений;
+ *  openUserSett() - открытие настроек пользователя;
+ *  saveUserSett() - сохранение настроек пользователя;
+ *  on_lineFilePath_editingFinished() - окончание изменения строки пути сохранения файлов;
+ *  on_txtLogClient_textChanged() - проверка на возможность очистить логи клиентов;
+ *  on_txtChat_textChanged() - проверка на возможность очистить чат и архив сообщений.
+ *
+ *  Используемые переменные:
+ *
+ *  m_ptcpServer - ;
+ *  m_nNextBlockSize - ;
+ *  clients - ;
+ *  listC - ;
+ *  fileName - ;
+ *  fileSize - ;
+ *  target - ;
+ *  sFromSave - ;
+ *  rFromSave - ;
+ *  mFromSave - ;
+ *  dateForChat - ;
+ *  identity - ;
+ *  filePath - ;
+ *  chatPath - ;
+ *  checkBtn - ;
+ *  checkTheme - ;
+ *  savePath - ;
+ *  fileUserSet - ;
+ *  checkFile - ;
+ *  model - ;
+ *  horizontalHeader - ;
+ *  idArchMsg - .
+*/
+
+
 #include "myserver.h"
 #include "ui_myserver.h"
-#include <QTcpServer>
-#include <QTcpSocket>
-#include <QTime>
-#include <QDir>
-#include <QFile>
-#include <QMap>
-#include <QtXml>
-#include "switch.h"
-#include <QStyleFactory>
-#include <QStandardItem>
-#include <QStandardItemModel>
 #include <idialog.h>
 #include <errdialog.h>
 #include <inputdial.h>
-
+#include "switch.h"
+#include <QtXml>
+#include <QStyleFactory>
 
 /*  MyServer - конструктор класса MyServer.
  *  Формальные параметры:
@@ -95,7 +146,7 @@ void MyServer::newClient()
             connect (pClientSocket, SIGNAL(disconnected()), pClientSocket, SLOT(deleteLater()));
             connect (pClientSocket, SIGNAL(readyRead()), this, SLOT(readClient()));
             it.value().state = true;
-            sendListClient();                                       // отправка нового списка клиентов
+            sendListClient();                                       // Отправка нового списка клиентов
             for(int i=0;i<ui->listClient->count();i++)
             {
                 QListWidgetItem* item= ui->listClient->item(i);
@@ -255,7 +306,7 @@ void MyServer::readClient()
         case 33:    // Часть файла
         {
             QByteArray line = pClientSocket->read(63000);
-            target.write(line);                             // Запись в файл части файла
+            target.write(line);                             // Запись части файла
             m_nNextBlockSize = 0;
             sendService(pClientSocket);
         }
@@ -637,7 +688,6 @@ void MyServer::on_actSave_triggered()
 
 /* on_actSaveAs_triggered - сохранение списка клиентов в выбранный файл.
  * Локальные переменные:
- *      dial - диалоговое окно с подтверждением сохранения списка клиентов;
  *      fileSaveList - файл, в который будет необходимо сохранить список клиентов;
  *      xmlWriter - объект, с помощью которого осуществляется запись в файл;
  *      it - итератор по клиентам;
@@ -647,45 +697,40 @@ void MyServer::on_actSaveAs_triggered()
 {
     if (ui->listClient->count() > 0)
     {
-        idialog dial("Вы действительно хотите сохранить список клиентов?");
-        dial.setWindowTitle("Сохранение");
-        if (dial.exec() == QDialog::Accepted)
+        savePath = QFileDialog::getSaveFileName(this,tr("Выберите директорию для сохранения"));
+        if (savePath.trimmed() != "")
         {
-            savePath = QFileDialog::getSaveFileName(this,tr("Выберите директорию для сохранения"));
-            if (savePath.trimmed() != "")
+            QFile fileSaveList(savePath);
+            if (fileSaveList.open(QIODevice::WriteOnly))
             {
-                QFile fileSaveList(savePath);
-                if (fileSaveList.open(QIODevice::WriteOnly))
+                QXmlStreamWriter xmlWriter(&fileSaveList);
+                xmlWriter.setAutoFormatting(true);              // Устанавливаем автоформатирование текста
+                xmlWriter.writeStartDocument();                 // Запускаем запись в документ
+                xmlWriter.writeStartElement("listclients");     // Записываем первый элемент с его именем.
+                QMap <quint16, client>::iterator it = clients.begin();
+                for (; it != clients.end(); it++)
                 {
-                    QXmlStreamWriter xmlWriter(&fileSaveList);
-                    xmlWriter.setAutoFormatting(true);              // Устанавливаем автоформатирование текста
-                    xmlWriter.writeStartDocument();                 // Запускаем запись в документ
-                    xmlWriter.writeStartElement("listclients");     // Записываем первый элемент с его именем.
-                    QMap <quint16, client>::iterator it = clients.begin();
-                    for (; it != clients.end(); it++)
-                    {
-                        xmlWriter.writeStartElement("client");
+                    xmlWriter.writeStartElement("client");
 
-                        xmlWriter.writeStartElement("name");
-                        xmlWriter.writeCharacters(it.value().name);
-                        xmlWriter.writeEndElement();
-
-                        xmlWriter.writeStartElement("ip");
-                        xmlWriter.writeCharacters(it.value().ip.toString());
-                        xmlWriter.writeEndElement();
-
-                        xmlWriter.writeEndElement();
-                    }
+                    xmlWriter.writeStartElement("name");
+                    xmlWriter.writeCharacters(it.value().name);
                     xmlWriter.writeEndElement();
-                    xmlWriter.writeEndDocument();
-                    fileSaveList.close();
+
+                    xmlWriter.writeStartElement("ip");
+                    xmlWriter.writeCharacters(it.value().ip.toString());
+                    xmlWriter.writeEndElement();
+
+                    xmlWriter.writeEndElement();
                 }
-                else
-                {
-                    errDialog err("Не удалось открыть файл!");
-                    err.setWindowTitle("Ошибка");
-                    err.exec();
-                }
+                xmlWriter.writeEndElement();
+                xmlWriter.writeEndDocument();
+                fileSaveList.close();
+            }
+            else
+            {
+                errDialog err("Не удалось открыть файл!");
+                err.setWindowTitle("Ошибка");
+                err.exec();
             }
         }
     }
@@ -771,7 +816,7 @@ void MyServer::on_btnDelClient_clicked()
 
 /* on_actOpen_triggered - открытие списка клиентов.
  * Локальные переменные:
- *      fileDir - имя файла со списком клиентов.
+ *      fileDir - имя файла со списком клиентов;
  *      dial - диалоговое окно с предупреждением о потере уже добавленных клиентов;
  *      it - итератор по клиентам;
  *      xmlFile - файл со списком клиентов;
@@ -781,7 +826,7 @@ void MyServer::on_btnDelClient_clicked()
  *      domElement - тег xml-документа;
  *      node - текущий раздел;
  *      element - текущий элемент;
- *      tagName - имя текущего элемента;
+ *      tagName - имя текущего элемента.
  */
 void MyServer::on_actOpen_triggered()
 {
