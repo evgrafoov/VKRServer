@@ -57,7 +57,6 @@ private:
     bool checkTheme = true;
     QString savePath = QDir::homePath() + "/Desktop/listClient.xml";
     QString fileUserSet = QDir::homePath() + "/Desktop/ServerSettings/setting.xml";
-    bool checkFile = false;
     QStandardItemModel *model = new QStandardItemModel;
     QStringList horizontalHeader = {"Отправитель", "Получатель", "Сообщение"};
     qint64 idArchMsg = 0;

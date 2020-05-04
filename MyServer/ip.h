@@ -1,3 +1,4 @@
+//Ip – класс для ввода IP-адреса
 #ifndef IP_H
 #define IP_H
 

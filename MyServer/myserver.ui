@@ -119,6 +119,9 @@
            <property name="styleSheet">
             <string notr="true"/>
            </property>
+           <property name="maxLength">
+            <number>300</number>
+           </property>
           </widget>
          </item>
          <item>
@@ -235,6 +238,9 @@
                   </property>
                   <property name="styleSheet">
                    <string notr="true"/>
+                  </property>
+                  <property name="maxLength">
+                   <number>50</number>
                   </property>
                   <property name="readOnly">
                    <bool>false</bool>
@@ -522,6 +528,9 @@
                 </property>
                 <property name="styleSheet">
                  <string notr="true"/>
+                </property>
+                <property name="maxLength">
+                 <number>150</number>
                 </property>
                </widget>
               </item>

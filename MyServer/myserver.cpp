@@ -33,28 +33,28 @@
  *
  *  Используемые переменные:
  *
- *  m_ptcpServer - ;
- *  m_nNextBlockSize - ;
- *  clients - ;
- *  listC - ;
- *  fileName - ;
- *  fileSize - ;
- *  target - ;
- *  sFromSave - ;
- *  rFromSave - ;
- *  mFromSave - ;
- *  dateForChat - ;
- *  identity - ;
- *  filePath - ;
- *  chatPath - ;
- *  checkBtn - ;
- *  checkTheme - ;
- *  savePath - ;
- *  fileUserSet - ;
- *  checkFile - ;
- *  model - ;
- *  horizontalHeader - ;
- *  idArchMsg - .
+ *  m_ptcpServer - управление сервером;
+ *  m_nNextBlockSize - длина следующего полученного от колека блока;
+ *  clients - контейнер, содержащий данные о клиентах;
+ *  listC - контейнер для отправки списка клиентов;
+ *  fileName - имя полученного файла;
+ *  fileSize - размер полученного файла;
+ *  target - конечный путь сохранения файлов;
+ *  sFromSave - отправитель сообщения;
+ *  rFromSave - получатель сообщения;
+ *  mFromSave - отправленное сообщение;
+ *  dateForChat - дата для удобного просмотра чата;
+ *  identity - идентификатор для храненияя данных о клиентах;
+ *  filePath - путь сохранения файлов;
+ *  chatPath - путь сохранения чата;
+ *  checkBtn - флаг для показа/скрытия информации о клиенте;
+ *  checkTheme - флаг для смены темы приложения;
+ *  savePath - путь сохранения списка клиентов;
+ *  fileUserSet - путь сохранения настроек клиента;
+ *  model - модель для добавления данных в архив;
+ *  horizontalHeader - заголовоки столбцов в архиве;
+ *  idArchMsg - идентификатор для добавления данных в архив.
+ * ***********************************************************
 */
 
 
@@ -268,25 +268,39 @@ void MyServer::readClient()
                 }
                 else if (dial.result() == QDialog::Rejected)
                 {
-                    inputDial inp;
+                    inputDial inp("Введите новое имя файла");
                     inp.setWindowTitle("Ввод данных");
-                    if (inp.exec() == QDialog::Accepted && !inp.sendName().trimmed().isEmpty())
+                    if (inp.exec() == QDialog::Accepted && !inp.sendString().trimmed().isEmpty())
                     {
                         QString exp = fileName.split(".").last();
-                        fileName = inp.sendName() + "." + exp;
+                        fileName = inp.sendString() + "." + exp;
                         target.setFileName(filePath + fileName);
                     }
                     else
                     {
                         sendToSpecClient(pClientSocket, "Ошибка! Повторите отправку файла " + fileName);
-                        //Отправить, что нужно прервать отправку
+                        quint16 typeMsg = 4;
+                        QByteArray arrBlock;
+                        QDataStream out (&arrBlock, QIODevice::WriteOnly);
+                        out.setVersion(QDataStream::Qt_5_3);
+                        out << quint16(0) << typeMsg << QTime::currentTime() << str;
+                        out.device() -> seek(0);
+                        out << (quint16)(arrBlock.size() - sizeof(quint16));
+                        pClientSocket->write(arrBlock);
                         break;
                     }
                 }
                 else
                 {
                     sendToSpecClient(pClientSocket, "Ошибка! Повторите отправку файла " + fileName);
-                    //Отправить, что нужно прервать отправку
+                    quint16 typeMsg = 4;
+                    QByteArray arrBlock;
+                    QDataStream out (&arrBlock, QIODevice::WriteOnly);
+                    out.setVersion(QDataStream::Qt_5_3);
+                    out << quint16(0) << typeMsg << QTime::currentTime() << str;
+                    out.device() -> seek(0);
+                    out << (quint16)(arrBlock.size() - sizeof(quint16));
+                    pClientSocket->write(arrBlock);
                     break;
                 }
             }
@@ -454,7 +468,10 @@ void MyServer::sendToSpecClient(QTcpSocket *pSender, const QString &str)
     for (; it != clients.end(); it++)
     {
         if (it.value().socket == pSender && it.value().state)
+        {
             pSender->write(arrBlock);           // Отправка сообщения клиенту
+            return;
+        }
     }
 }
 
@@ -609,21 +626,21 @@ void MyServer::on_btnAddClient_clicked()
             else
             {
                 errDialog err("Введите уникальные значения!");
-                err.setWindowTitle("Ошибка");
+                err.setWindowTitle("Ошибка добавления клиента");
                 err.exec();
             }
         }
         else
         {
             errDialog err("Заполните корректно поле IP адреса!");
-            err.setWindowTitle("Ошибка");
+            err.setWindowTitle("Ошибка IP-адреса");
             err.exec();
         }
     }
     else
     {
         errDialog err("Заполните все поля!");
-        err.setWindowTitle("Ошибка");
+        err.setWindowTitle("Ошибка добавления клиента");
         err.exec();
     }
 }
@@ -673,7 +690,7 @@ void MyServer::on_actSave_triggered()
             else
             {
                 errDialog err("Не удалось открыть файл!");
-                err.setWindowTitle("Ошибка");
+                err.setWindowTitle("Ошибка сохранения списка клиентов");
                 err.exec();
             }
         }
@@ -729,7 +746,7 @@ void MyServer::on_actSaveAs_triggered()
             else
             {
                 errDialog err("Не удалось открыть файл!");
-                err.setWindowTitle("Ошибка");
+                err.setWindowTitle("Ошибка сохранения списка клиентов");
                 err.exec();
             }
         }
@@ -802,14 +819,14 @@ void MyServer::on_btnDelClient_clicked()
         else
         {
             errDialog err("Выберите пользователя, которого необходимо удалить.");
-            err.setWindowTitle("Ошибка");
+            err.setWindowTitle("Ошибка удаления клиента");
             err.exec();
         }
     }
     else
     {
         errDialog err("Список пользователей пуст!");
-        err.setWindowTitle("Ошибка");
+        err.setWindowTitle("Ошибка удаления клиента");
         err.exec();
     }
 }
@@ -992,15 +1009,15 @@ void MyServer::on_btnExecProc_clicked()
         {
             if (ui->listClient->currentItem()->text() == it.value().name && it.value().state)
             {
-                inputDial inpPath;
-                inpPath.setWindowTitle("Ввод пути файла");
+                inputDial inpPath("Введите путь до исполняемого файла");
+                inpPath.setWindowTitle("Запуск процесса у клиента");
                 if (inpPath.exec() == QDialog::Accepted)
                 {
                     quint16 typeMsg = 2;
                     QByteArray arrBlock;
                     QDataStream out (&arrBlock, QIODevice::WriteOnly);
                     out.setVersion(QDataStream::Qt_5_3);
-                    out << quint16(0) << typeMsg << QTime::currentTime() << inpPath.sendName().trimmed();
+                    out << quint16(0) << typeMsg << QTime::currentTime() << inpPath.sendString().trimmed();
                     out.device() -> seek(0);
                     out << (quint16)(arrBlock.size() - sizeof(quint16));
                     it.value().socket->write(arrBlock);
@@ -1009,7 +1026,7 @@ void MyServer::on_btnExecProc_clicked()
             else
             {
                 errDialog err("Выбранный пользователь не в сети!");
-                err.setWindowTitle("Ошибка");
+                err.setWindowTitle("Ошибка запуска процесса");
                 err.exec();
             }
             break;
@@ -1018,7 +1035,7 @@ void MyServer::on_btnExecProc_clicked()
     else
     {
         errDialog err("Выберите пользователя из списка!");
-        err.setWindowTitle("Ошибка");
+        err.setWindowTitle("Ошибка запуска процесса");
         err.exec();
     }
 }

@@ -1,11 +1,26 @@
+/*  Ip - класс для ввода IP-адреса.
+ * ***********************************************************
+ *  Используемые методы:
+ *
+ *  setNightMode - установка темной темы;
+ *  setLightMode - установка светлой темы;
+ *  on_lineEdit_1_textChanged - изменение фокуса при вводе в первое поле;
+ *  on_lineEdit_2_textChanged - изменение фокуса при вводе во второе поле;
+ *  on_lineEdit_3_textChanged - изменение фокуса при вводе в третье поле;
+ *  on_lineEdit_4_textChanged - изменение фокуса при вводе в четверное поле;
+ *  getIP - получение значения IP-адреса;
+ *  setEmpty - очистка всех полей ввода IP-адреса;
+ *  setOnlyRead - установка режима "только для чтения";
+ *  setIp - установка значения IP-адреса;
+ *  eventFilter - обработка нажатий клавиш.
+ * ***********************************************************
+ */
 #include "ip.h"
 #include "ui_ip.h"
 #include <QRegExpValidator>
 #include <QStringList>
 #include <QKeyEvent>
-#include <QDebug>
-#include <QStyle>
-#include <QStyleFactory>
+
 
 /*  Ip - конструктор класса Ip.
  *  Формальный параметр:
@@ -177,9 +192,9 @@ void Ip::setIp(QString allIP)
  *      obj - объект-приёмник;
  *      event - обработчик событий;
  *  Локальные переменные:
- *      lineEdit - ;
- *      num - ;
- *      keyEvent - .
+ *      lineEdit - указатель на объект lineEdit;
+ *      num - счетчик;
+ *      keyEvent - переменная для хранения кода клавиши.
  */
 bool Ip::eventFilter(QObject *obj, QEvent *event) {
     QLineEdit *lineEdit = findChild<QLineEdit *>(obj->objectName());

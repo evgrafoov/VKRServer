@@ -1,3 +1,5 @@
+//inputDial - класс для ввода данных пользователем
+
 #ifndef INPUTDIAL_H
 #define INPUTDIAL_H
 
@@ -12,12 +14,12 @@ class inputDial : public QDialog
     Q_OBJECT
 
 public:
-    explicit inputDial(QWidget *parent = nullptr);
+    explicit inputDial(QString str, QWidget *parent = nullptr);
     ~inputDial();
-    QString sendName();
+    QString sendString();
 
 private slots:
-    void on_lineNewFile_textChanged(const QString &arg1);
+    void on_lineText_textChanged(const QString &arg1);
 
 private:
     Ui::inputDial *ui;

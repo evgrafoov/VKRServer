@@ -1,3 +1,4 @@
+//idialog - класс для вывода сообщения для пользователя
 #ifndef IDIALOG_H
 #define IDIALOG_H
 

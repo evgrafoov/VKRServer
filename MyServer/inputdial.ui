@@ -55,7 +55,7 @@
       </widget>
      </item>
      <item>
-      <widget class="QLineEdit" name="lineNewFile">
+      <widget class="QLineEdit" name="lineText">
        <property name="font">
         <font>
          <family>Roboto</family>

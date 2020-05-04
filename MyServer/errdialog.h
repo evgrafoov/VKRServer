@@ -1,3 +1,4 @@
+//errDialog - класс для вывода сообщения об ошибке
 #ifndef ERRDIALOG_H
 #define ERRDIALOG_H
 
