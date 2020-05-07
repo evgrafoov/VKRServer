@@ -817,10 +817,10 @@
      <normaloff>:/rec/img/save_as.png</normaloff>:/rec/img/save_as.png</iconset>
    </property>
    <property name="text">
-    <string>Сохранить &amp;как список клиентов</string>
+    <string>Сохранить список клиентов &amp;как</string>
    </property>
    <property name="toolTip">
-    <string>Сохранить как список клиентов</string>
+    <string>Сохранить список клиентов как</string>
    </property>
    <property name="shortcut">
     <string>Ctrl+U</string>

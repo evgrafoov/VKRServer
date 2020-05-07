@@ -191,6 +191,7 @@ void MyServer::newClient()
  *      dial - диалоговое окно с вводом нового имени файла;
  *      line - считывание очередной части файла из сокета;
  *      target - конечный путь сохранения файлов;
+ *      items_list - клиент, который отключился;
  *      i - итератор по списку клиентов.
  */
 void MyServer::readClient()
@@ -998,10 +999,12 @@ void MyServer::on_btnClearLog_clicked()
  *      typeMsg - тип отправляемого сообщения;
  *      arrBlock - блок для отправки данных клиенту;
  *      out - запить данных в сокет;
+ *      flag - флаг для проверки, подключен ли клиент;
  *      err - диалоговое окно с сообщением об ошибке.
  */
 void MyServer::on_btnExecProc_clicked()
 {
+    bool flag = false;
     if (ui->listClient->currentRow() != -1)
     {
         QMap <quint16, client>::iterator it = clients.begin();
@@ -1009,6 +1012,7 @@ void MyServer::on_btnExecProc_clicked()
         {
             if (ui->listClient->currentItem()->text() == it.value().name && it.value().state)
             {
+                flag = true;
                 inputDial inpPath("Введите путь до исполняемого файла");
                 inpPath.setWindowTitle("Запуск процесса у клиента");
                 if (inpPath.exec() == QDialog::Accepted)
@@ -1023,13 +1027,12 @@ void MyServer::on_btnExecProc_clicked()
                     it.value().socket->write(arrBlock);
                 }
             }
-            else
-            {
-                errDialog err("Выбранный пользователь не в сети!");
-                err.setWindowTitle("Ошибка запуска процесса");
-                err.exec();
-            }
-            break;
+        }
+        if (!flag)
+        {
+            errDialog err("Выбранный пользователь не в сети!");
+            err.setWindowTitle("Ошибка запуска процесса");
+            err.exec();
         }
     }
     else
