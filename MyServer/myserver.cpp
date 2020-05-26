@@ -75,7 +75,8 @@
 MyServer::MyServer(int nPort, QWidget* pwgt): QMainWindow(pwgt), m_nNextBlockSize(0), ui(new Ui::MyServer)
 {
     ui->setupUi(this);
-    qApp->setFont(QFont("Roboto", 13));
+    qApp->setFont(QFont("Roboto"));
+    //ui->tblArchChat->setFont(QFont("Roboto", 9));
     m_ptcpServer = new QTcpServer(this);
     if (!m_ptcpServer->listen(QHostAddress::Any, nPort))
     {
@@ -185,15 +186,21 @@ void MyServer::newClient()
  *      str - сообщение от пользователя;
  *      name - имя клиента;
  *      clientReciever - имя получателя;
- *      m_nNextBlockSize - размер очередного блока;
  *      it - итератор по клиентам;
  *      fileName - имя файла;
- *      dial - диалоговое окно с вводом нового имени файла;
- *      line - считывание очередной части файла из сокета;
- *      target - конечный путь сохранения файлов;
+ *      dial - диалоговое окно с сообщением для пользователя;
+ *      inp - диалоговое окно с вводом данных;
+ *      exp - расширение файла;
+ *      typeMsg – тип отправляемого сообщения;
+ *      arrBlock - блок для отправки данных клиенту;
+ *      out - запить данных в сокет;
+ *      err - диалоговое окно с сообщением об ошибке;
+ *      line - считывание очередной части файла;
  *      items_list - клиент, который отключился;
+ *      item - запись об отключившимся клиенте в списке разрешенных пользователей;
  *      i - итератор по списку клиентов.
  */
+
 void MyServer::readClient()
 {
     QTcpSocket* pClientSocket = (QTcpSocket*)sender();
@@ -366,8 +373,7 @@ void MyServer::readClient()
                     {
                         int itemRow = ui->listClient->row(items_list[i]);
                         QListWidgetItem *item = ui->listClient->item(itemRow);
-                        QIcon icon = QIcon(":/rec/img/decline.png");
-                        item->setIcon(icon);
+                        item->setIcon(QIcon(":/rec/img/decline.png"));
                         ui->txtLogClient->append("Клиент " + it.value().name + " отключился");
                         if(ui->txtClientInfo->isVisible())
                         {
@@ -379,6 +385,7 @@ void MyServer::readClient()
                         it.value().state = false;
                     }
                 }
+                m_nNextBlockSize = 0;
                 break;
             }
             pClientSocket->disconnectFromHost();
